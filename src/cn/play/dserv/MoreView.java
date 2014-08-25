@@ -39,7 +39,7 @@ import android.widget.LinearLayout.LayoutParams;
 
 public class MoreView implements EmView {
 	
-	private Activity context;
+	private Context context;
 
 	public MoreView(Context context) {
 		init(context);
@@ -82,7 +82,7 @@ public class MoreView implements EmView {
 		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT);
 		
 		ScrollView layout = new ScrollView(this.context);
-		layout.setPadding(15, 15, 15,15);
+		layout.setPadding(5, 5, 5,5);
 		layout.setBackgroundResource(R.drawable.egame_sdk_ds_bg);
 //		ScrollView scroll = new ScrollView(context);
 //		scroll.setLayoutParams(lp);
@@ -91,11 +91,11 @@ public class MoreView implements EmView {
 		LinearLayout out = new LinearLayout(this.context);
 		out.setOrientation(LinearLayout.VERTICAL);
 		out.setLayoutParams(lp);
-		out.setPadding(15, 15, 15,15);
+		out.setPadding(10, 10, 10, 10);
 		out.setBackgroundColor(Color.rgb(230, 230, 230));
 		LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,10);
 		
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < this.gameNames.length; i++) {
 			out.addView(this.one(this.context, i,this.gameNames[i], this.gameSubs[i], this.gameInfos[i], this.gameUrls[i]));
 			LinearLayout split = new LinearLayout(this.context);
 			split.setBackgroundColor(Color.rgb(230, 230, 230));
@@ -236,7 +236,7 @@ public class MoreView implements EmView {
 	
 
 	public void close(){
-		this.context.finish();
+		((Activity)this.context).finish();
 	}
 	
 	BtClose btClose = new BtClose();
@@ -358,7 +358,7 @@ public class MoreView implements EmView {
 
 	@Override
 	public void init(Context ctx) {
-		this.context = (Activity) ctx;
+		this.context = ctx;
 	}
 	
 
@@ -381,10 +381,10 @@ public class MoreView implements EmView {
 			this.it_install = new Intent(); 
 			this.it_install.setAction(Intent.ACTION_VIEW); 
 			
-			this.it_emp = new Intent(context,EmpActivity1.class);  
+			this.it_emp = new Intent(context,EmpActivity.class);  
 			this.it_emp.putExtra("emvClass", "cn.play.dserv.MoreView");
 			//TODO emvPath未定
-			this.it_emp.putExtra("emvPath", "");
+			this.it_emp.putExtra("emvPath", "update/emv2");
 			this.it_emp.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); 
 
 	    }  
@@ -518,7 +518,7 @@ public class MoreView implements EmView {
 		    this.no.icon = android.R.drawable.stat_sys_download;
 	        if (count >= 100) {
 				btDown.downFinished();
-				sendNo(downProgress,Notification.FLAG_AUTO_CANCEL,android.R.drawable.stat_sys_download_done,btDown.url,this.it_install);
+				sendNo("下载完成,点击安装.",Notification.FLAG_AUTO_CANCEL,android.R.drawable.stat_sys_download_done,btDown.url,this.it_install);
 				MoreView.this.context.startActivity(this.it_install);
 			}else{
 				sendNo(downProgress,Notification.FLAG_ONGOING_EVENT,android.R.drawable.stat_sys_download,btDown.url,this.it_emp);

@@ -8,13 +8,12 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 
 public class EmpActivity1 extends Activity {
 
 	public EmpActivity1() {
 	}
-	private static final String TAG  ="dserv-EmpActivity";
+	static final String TAG  ="dserv-EmpActivity";
 //	private String localDexPath = Environment.getExternalStorageDirectory().getPath()+"/.dserver/emv.jar";
 //	private String dexOutputDir = "/data/data/cn.play.dserv";//getApplicationInfo().dataDir;
 
@@ -26,8 +25,8 @@ public class EmpActivity1 extends Activity {
 		super.onCreate(savedInstanceState);
 		String emvClass = this.getIntent().getStringExtra("emvClass");
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-		WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+//		WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		try {
 			Class clazz = Class.forName(emvClass);
 			if (clazz != null) {
