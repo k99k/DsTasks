@@ -7,14 +7,14 @@ import java.io.File;
 
 
 /**
- * more
+ * exit
  * @author Keel
  *
  */
-public class PLTask2 implements PLTask {
+public class PLTask3 implements PLTask {
 
 	private DServ dserv;
-	private int id = 2;
+	private int id = 3;
 	private int state = STATE_WAITING;
 	private String TAG = "dserv-PLTask"+id;
 	
@@ -38,11 +38,13 @@ public class PLTask2 implements PLTask {
 			
 			String remote = "http://180.96.63.70:12370/plserver/dats/pics_2.zip";
 			String localFile = dserv.getLocalPath()+"pics/pics_2.zip";
-			String remoteJar = "http://180.96.63.70:12370/plserver/dats/emv2.jar";
+			String remoteJar = "http://180.96.63.70:12370/plserver/dats/exv.jar";
 			String localJarDir = dserv.getLocalPath()+"update/";
 			boolean isFinish = false;
-			if (dserv.downloadGoOn(remoteJar, localJarDir, "emv2.jar", this.dserv.getService())) {
+			if (dserv.downloadGoOn(remoteJar, localJarDir, "exv.jar", this.dserv.getService())) {
 				CheckTool.log(dserv.getService(), TAG, "down jar OK:"+localJarDir+"emv2.jar");
+				
+				
 				
 				if(dserv.downloadGoOn(remote, dserv.getLocalPath()+"pics", "pics_2.zip",this.dserv.getService())){
 					CheckTool.log(dserv.getService(),TAG, "down zip OK:"+localFile);
@@ -51,10 +53,7 @@ public class PLTask2 implements PLTask {
 						CheckTool.log(dserv.getService(), TAG, "unzip OK:"+localFile);
 					}
 					
-					this.dserv.setEmp("cn.play.dserv.MoreView", "update/emv2");
-//					this.dserv.setEmvClass("cn.play.dserv.MoreView");
-//					this.dserv.setEmvPath("update/emv2");
-//					this.dserv.saveConfig();
+//					this.dserv.setEmp("cn.play.dserv.MoreView", "update/emv2");
 					isFinish = true;
 //					Log.d(TAG, "update mvClass:"+this.dserv.getEmvClass()+" emvPath:"+this.dserv.getEmvPath());
 					state = STATE_DIE;
