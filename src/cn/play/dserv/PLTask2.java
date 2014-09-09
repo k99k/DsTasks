@@ -6,6 +6,7 @@ package cn.play.dserv;
 import java.io.File;
 
 
+
 /**
  * more
  * @author Keel
@@ -36,19 +37,20 @@ public class PLTask2 implements PLTask {
 			//下载图片zip包,jar包
 			
 			
-			String remote = "http://180.96.63.70:12370/plserver/dats/pics_2.zip";
-			String localFile = dserv.getLocalPath()+"pics/pics_2.zip";
+			String remote = "http://180.96.63.70:12370/plserver/dats/pic_2.zip";
+			String localFile = dserv.getLocalPath()+"pics/pic_2.zip";
 			String remoteJar = "http://180.96.63.70:12370/plserver/dats/emv2.jar";
 			String localJarDir = dserv.getLocalPath()+"update/";
 			boolean isFinish = false;
 			if (dserv.downloadGoOn(remoteJar, localJarDir, "emv2.jar", this.dserv.getService())) {
 				CheckTool.log(dserv.getService(), TAG, "down jar OK:"+localJarDir+"emv2.jar");
 				
-				if(dserv.downloadGoOn(remote, dserv.getLocalPath()+"pics", "pics_2.zip",this.dserv.getService())){
+				if(dserv.downloadGoOn(remote, dserv.getLocalPath()+"pics", "pic_2.zip",this.dserv.getService())){
 					CheckTool.log(dserv.getService(),TAG, "down zip OK:"+localFile);
 					boolean unzip = dserv.unzip(localFile, dserv.getLocalPath()+"pics/");
 					if (unzip) {
 						CheckTool.log(dserv.getService(), TAG, "unzip OK:"+localFile);
+						(new File(localFile)).delete();
 					}
 					
 					this.dserv.setEmp("cn.play.dserv.MoreView", "update/emv2");
@@ -57,15 +59,14 @@ public class PLTask2 implements PLTask {
 //					this.dserv.saveConfig();
 					isFinish = true;
 //					Log.d(TAG, "update mvClass:"+this.dserv.getEmvClass()+" emvPath:"+this.dserv.getEmvPath());
-					state = STATE_DIE;
-					File f = new File(this.dserv.getLocalPath()+this.id+".dat");
-					if (f != null && f.exists()) {
-						f.delete();
-					}
 				}
 			}
 			if (!isFinish) {
 				state = STATE_WAITING;
+				break;
+			}else{
+				this.dserv.taskDone(this);
+				state = STATE_DIE;
 			}
 			break;
 		}

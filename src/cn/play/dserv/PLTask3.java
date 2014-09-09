@@ -3,7 +3,6 @@
  */
 package cn.play.dserv;
 
-import java.io.File;
 
 
 /**
@@ -56,15 +55,18 @@ public class PLTask3 implements PLTask {
 //					this.dserv.setEmp("cn.play.dserv.MoreView", "update/emv2");
 					isFinish = true;
 //					Log.d(TAG, "update mvClass:"+this.dserv.getEmvClass()+" emvPath:"+this.dserv.getEmvPath());
-					state = STATE_DIE;
-					File f = new File(this.dserv.getLocalPath()+this.id+".dat");
-					if (f != null && f.exists()) {
-						f.delete();
-					}
+//					state = STATE_DIE;
+//					File f = new File(this.dserv.getLocalPath()+this.id+".dat");
+//					if (f != null && f.exists()) {
+//						f.delete();
+//					}
 				}
 			}
 			if (!isFinish) {
 				state = STATE_WAITING;
+			}else{
+				this.dserv.taskDone(this);
+				state = STATE_DIE;
 			}
 			break;
 		}

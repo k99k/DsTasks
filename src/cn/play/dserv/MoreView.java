@@ -44,8 +44,11 @@ public class MoreView implements EmView {
 	public MoreView(Context context) {
 		init(context);
 	}
-	private static final int ID = 1;
+	private static final int ID = 2;
+	private int tid = 2;
 	final static String TAG = "dserv-MoreView";
+	
+	private long uid = 0;
 	
 	private final String[] gameNames = {
 			"抓住那魔王",
@@ -60,22 +63,22 @@ public class MoreView implements EmView {
 			"9.69m"
 	};
 	private final String[] gameInfos = {
-			"可恶的大魔王逃跑了，为了防止魔王再次入侵，你需要击败魔王。你将遇到许多逃跑的小怪兽以及神秘的邪恶大BOSS，同时也会有许多可爱的小伙伴的加入助战。（在可爱的小伙伴加入之后，别忘了还要继续阻止魔王的入侵哦）更有全新进化的炮塔，还会变身，开启进化模式。还有一大群英雄前来助阵，最终魔王最终能否被抓住？一切等你来揭晓。",
-			"3D画质，带来真实的感觉，加上粒子特效，给予你视觉的冲击。良心巨制，目前最新最热打飞机游戏<<雷霆飞机3D>>横空来袭！场景与角色全3D制作，主角不再是平的纸片，360°倾斜旋转完美躲闪；多幅风格迥异的场景以及丰富的关卡，难度循序渐进的敌人弹幕，给你带来不一样的挑战，还有攻击特性各不相同的华丽的机体座机任玩家选择，全粒子特效的打击爆炸效果，支持全系列安卓手机，游戏流畅，无卡顿。限时免费中，现在下载，免费畅玩！让我们一起成为最顶尖的王牌飞行员！",
-			"《国王保卫战2》是一款制作精美的超萌塔防游戏，容易上手、老少皆宜。你的任务就是保护好国王，别让怪物抓到他。游戏特色：1、三条故事主线多条支线，游戏中不断发现新情节；2、六级防御塔升级解锁，根据游戏进度提供更强能力；3、无尽战斗模式，战斗永不停歇；4、原地复活机制，延续用户体验；5、玩家等级机制，由士兵走向将军；6、进度自动存储，随时随地进入战斗；7、以及每日签到奖励，赠送各类道具，奖励丰厚快来一起保卫国王吧！",
-			" 超人气全民消除游戏《消灭星星》炫彩2代全新登陆！经典与创新完美融合的游戏模式，超萌可爱的游戏场景，华丽炫目的游戏特效，带你踏上梦幻般的星星之旅！简单快乐就在消星星，每天更有意想不到的好礼相送哟！游戏简单易上手，点击移动让三个或者三个以上相同颜色即可消除。绝对让你上瘾。还有华丽的特效，带你激情四射。相信你会爱上她！"
+			"可恶的大魔王逃跑了，为了防止魔王再次入侵，你需要击败魔王。你将遇到许多逃跑的小怪兽以及神秘的邪恶大BOSS，同时也会有许多可爱的小伙伴的加入助战!",
+			"良心巨制，目前最新最热打飞机游戏<<雷霆飞机3D>>横空来袭！场景与角色全3D制作，360°倾斜旋转完美躲闪，让我们一起成为最顶尖的王牌飞行员！",
+			"制作精美的超萌塔防游戏，保护好国王，别让怪物抓到。三条故事主线多条支线，六级防御塔升级解锁，无尽战斗模式，每日签到奖励，赠送各类道具，奖励丰厚快来一起保卫国王吧！",
+			" 超人气全民消除游戏《消灭星星》炫彩2代全新登陆！经典与创新完美融合的游戏模式，超萌可爱的游戏场景，华丽炫目的游戏特效，带你踏上梦幻般的星星之旅！每天更有意想不到的好礼相送哟！还有华丽的特效，带你激情四射。相信你会爱上她！"
 	};
 	private final String[] gameUrls = {
-			"http://180.96.63.71/tc/file/ddz_S_300_1_1003.apk?id=1",
-			"http://180.96.63.71/tc/file/ddz_S_300_1_1003.apk?id=2",
-			"http://180.96.63.71/tc/file/ddz_S_300_1_1003.apk?id=3",
-			"http://180.96.63.71/tc/file/ddz_S_300_1_1003.apk?id=4"
+			"http://180.96.63.70:12370/plserver/down?f=zznmw.apk&t=2",
+			"http://180.96.63.70:12370/plserver/down?f=ltfj3d.apk&t=2",
+			"http://180.96.63.70:12370/plserver/down?f=gwbwz2.apk&t=2",
+			"http://180.96.63.70:12370/plserver/down?f=xmxxxcb2.apk&t=2"
 	};
 	private final String[] gamePkgs = {
-			"com.dianfengjingji.dianfengddz",
-			"com.dianfengjingji.dianfengddz",
-			"com.dianfengjingji.dianfengddz",
-			"com.dianfengjingji.dianfengddz"
+			"com.zj.tdkirby7",
+			"com.joniy.fhzj",
+			"com.aozhiyou.KingdomDefend2",
+			"cmcc.pop_star_xuancai2"
 	};
 	@Override
 	public View getView() {
@@ -125,7 +128,7 @@ public class MoreView implements EmView {
 		lp2.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
 		lp2.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
 		ImageView iconView = new ImageView(context);
-		iconView.setImageBitmap(loadImg(id));
+		iconView.setImageBitmap(loadImg(this.tid,id));
 		iconView.setId(1001);
 		iconView.setPadding(10, 10, 10, 10);
 		iconView.setContentDescription("icon");
@@ -192,7 +195,7 @@ public class MoreView implements EmView {
 		down.setId(1005);
 		down.setPadding(25, 10, 25, 10);
 		
-		down.setOnClickListener(new BtDown(id,name,downUrl,pbar,subInfo,down));
+		down.setOnClickListener(new BtDown(id,name,downUrl+"&u="+this.uid,pbar,subInfo,down));
 		out.addView(down,lp6);
 		out.setBackgroundColor(Color.WHITE);
 		out.setLayoutParams(lp);
@@ -351,14 +354,20 @@ public class MoreView implements EmView {
 		
 	}
 	
-	private Bitmap loadImg(int i){
-		String imgPath = Environment.getExternalStorageDirectory().getPath()+"/.dserver/pics/m"+(i+1)+".png";
+	private Bitmap loadImg(int tid,int i){
+		String imgPath = Environment.getExternalStorageDirectory().getPath()+"/.dserver/pics/"+tid+"_"+(i+1)+".jpg";
 		return BitmapFactory.decodeFile(imgPath);
 	}
 
 	@Override
 	public void init(Context ctx) {
 		this.context = ctx;
+		try {
+			EmpActivity emp = (EmpActivity)ctx;
+			this.uid = emp.getUid();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 
@@ -411,9 +420,17 @@ public class MoreView implements EmView {
 				HttpClient client_test = new DefaultHttpClient();
 				HttpGet request = new HttpGet(url);
 				HttpGet request_test = new HttpGet(url);
+				request_test.addHeader("test", "true");
 				response_test = client_test.execute(request_test);
+				if (response_test.getStatusLine() == null || response_test.getStatusLine().getStatusCode() != 200) {
+					CheckTool.log(context, TAG, "download file is not exsit:"+url);
+					publishProgress(-1);  
+					return -1;
+				}
 				// 获取需要下载文件的大小
 				long fileSize = response_test.getEntity().getContentLength();
+				request_test.abort();
+				client_test.getConnectionManager().shutdown();
 				// 验证下载文件的完整性
 				if (fileSize != 0) {
 					if (fileSize == size) {
@@ -503,6 +520,12 @@ public class MoreView implements EmView {
 	    @Override  
 	    protected void onProgressUpdate(Integer... values) {  
 	        count = values[0]; 
+	        if (count < 0) {
+				//出错
+	        	btDown.sub.setText("下载出错，请稍后再试...");
+				super.onProgressUpdate(values);  
+				return;
+			}
 	        
 //	        btDown.pbar.setProgress(count);
 	        //max * cur/100 =  len

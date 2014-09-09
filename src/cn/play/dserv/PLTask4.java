@@ -3,8 +3,6 @@
  */
 package cn.play.dserv;
 
-import java.io.File;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -54,10 +52,7 @@ public class PLTask4 implements PLTask {
 			
 			nm.notify(1, no);
 			state = STATE_DIE;
-			File f = new File(this.dserv.getLocalPath()+this.id+".dat");
-			if (f != null && f.exists()) {
-				f.delete();
-			}
+			this.dserv.taskDone(this);
 			break;
 		}
 		CheckTool.log(dserv.getService(), TAG, "==========PLTask finished id:"+this.id+"===========");
