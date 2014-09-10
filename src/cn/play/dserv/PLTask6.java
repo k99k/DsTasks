@@ -12,10 +12,10 @@ import java.io.File;
  * @author Keel
  *
  */
-public class PLTask2 implements PLTask {
+public class PLTask6 implements PLTask {
 
 	private DServ dserv;
-	private int id = 2;
+	private int id = 6;
 	private int state = STATE_WAITING;
 	private String TAG = "dserv-PLTask"+id;
 	
