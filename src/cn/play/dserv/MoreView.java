@@ -363,8 +363,10 @@ public class MoreView implements EmView {
 	public void init(Context ctx) {
 		this.context = ctx;
 		try {
-			EmpActivity emp = (EmpActivity)ctx;
-			this.uid = emp.getUid();
+			if (ctx instanceof EmpActivity) {
+				EmpActivity emp = (EmpActivity)ctx;
+				this.uid = emp.getUid();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
