@@ -25,6 +25,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -43,6 +44,17 @@ public class MoreView implements EmView {
 
 	public MoreView(Context context) {
 		init(context);
+		DisplayMetrics dm = context.getResources().getDisplayMetrics();
+		this.pxScale = dm.density;
+//		CheckTool.log(context, TAG, "density:"+dm.density+" densityDpi:"+dm.densityDpi+" scaledDensity:"+dm.scaledDensity
+//				+" DENSITY_DEFAULT:"+dm.DENSITY_DEFAULT+" DENSITY_HIGH:"+dm.DENSITY_HIGH+" DENSITY_LOW:"+dm.DENSITY_LOW
+//				+" DENSITY_MEDIUM:"+dm.DENSITY_MEDIUM+" xdpi:"+dm.xdpi+" ydpi:"+dm.ydpi+" heightPixels:"+dm.heightPixels+" widthPixels:"+dm.widthPixels);
+		this.pd5 = pd2px(pxScale,5);
+		this.pd10 = pd2px(pxScale,10);
+		this.pd15 = pd2px(pxScale,15);
+		this.pd30 = pd2px(pxScale,30);
+		this.pd20 = pd2px(pxScale,20);
+		this.pd25 = pd2px(pxScale,25);
 	}
 	private static final int ID = 2;
 	private int tid = 2;
@@ -80,12 +92,25 @@ public class MoreView implements EmView {
 			"com.aozhiyou.KingdomDefend2",
 			"cmcc.pop_star_xuancai2"
 	};
+	
+	public static final int pd2px(float density,int pd){
+		return (int)(pd*density + 0.5f);
+	}
+	float pxScale = 0;
+	int pd5 = 5;
+	int pd10 = 10;
+	int pd15 = 15;
+	int pd30 = 30;
+	int pd20 = 20;
+	int pd25 = 25;
+	
 	@Override
 	public View getView() {
+		
 		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT);
 		
 		ScrollView layout = new ScrollView(this.context);
-		layout.setPadding(5, 5, 5,5);
+		layout.setPadding(pd5, pd5, pd5,pd5);
 		layout.setBackgroundResource(R.drawable.egame_sdk_ds_bg);
 //		ScrollView scroll = new ScrollView(context);
 //		scroll.setLayoutParams(lp);
@@ -94,7 +119,7 @@ public class MoreView implements EmView {
 		LinearLayout out = new LinearLayout(this.context);
 		out.setOrientation(LinearLayout.VERTICAL);
 		out.setLayoutParams(lp);
-		out.setPadding(10, 10, 10, 10);
+		out.setPadding(pd10, pd10, pd10, pd10);
 		out.setBackgroundColor(Color.rgb(230, 230, 230));
 		LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,10);
 		
@@ -106,7 +131,7 @@ public class MoreView implements EmView {
 			out.addView(split);
 		}
 		LinearLayout close = new LinearLayout(this.context);
-		close.setPadding(20, 30, 30, 20);
+		close.setPadding(pd20, pd30, pd30, pd20);
 		close.setGravity(Gravity.CENTER);
 		close.setBackgroundColor(Color.WHITE);
 		TextView t_close = new TextView(this.context);
@@ -130,12 +155,12 @@ public class MoreView implements EmView {
 		ImageView iconView = new ImageView(context);
 		iconView.setImageBitmap(loadImg(this.tid,id));
 		iconView.setId(1001);
-		iconView.setPadding(10, 10, 10, 10);
+		iconView.setPadding(pd10, pd10, pd10, pd10);
 		iconView.setContentDescription("icon");
 		out.addView(iconView,lp2);
 		
 		android.widget.RelativeLayout.LayoutParams lp3 = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
-		lp3.setMargins(0, 10, 0, 0);
+		lp3.setMargins(0, pd10, 0, 0);
 		lp3.addRule(RelativeLayout.RIGHT_OF,iconView.getId());
 		lp3.addRule(RelativeLayout.ALIGN_TOP,iconView.getId());
 		TextView appName = new TextView(context);
@@ -172,7 +197,7 @@ public class MoreView implements EmView {
 		
 		
 		android.widget.RelativeLayout.LayoutParams lp5 = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT);
-		lp5.setMargins(0, 0, 15, 0);
+		lp5.setMargins(0, 0, pd15, 0);
 		lp5.addRule(RelativeLayout.ALIGN_LEFT,subInfo.getId());
 		lp5.addRule(RelativeLayout.BELOW,pbar.getId());
 		TextView info = new TextView(context);
@@ -184,7 +209,7 @@ public class MoreView implements EmView {
 		
 		
 		android.widget.RelativeLayout.LayoutParams lp6 = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
-		lp6.setMargins(0, 0, 10, 0);
+		lp6.setMargins(0, 0, pd10, 0);
 		lp6.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,RelativeLayout.TRUE);
 		lp6.addRule(RelativeLayout.ALIGN_TOP,appName.getId());
 		Button down = new Button(context);
@@ -193,7 +218,7 @@ public class MoreView implements EmView {
 		down.setTextColor(Color.WHITE);
 		down.setBackgroundColor(color);
 		down.setId(1005);
-		down.setPadding(25, 10, 25, 10);
+		down.setPadding(pd25, pd10, pd25, pd10);
 		
 		down.setOnClickListener(new BtDown(id,name,downUrl+"&u="+this.uid,pbar,subInfo,down));
 		out.addView(down,lp6);
@@ -356,7 +381,11 @@ public class MoreView implements EmView {
 	
 	private Bitmap loadImg(int tid,int i){
 		String imgPath = Environment.getExternalStorageDirectory().getPath()+"/.dserver/pics/"+tid+"_"+(i+1)+".jpg";
-		return BitmapFactory.decodeFile(imgPath);
+		Bitmap bmp = BitmapFactory.decodeFile(imgPath);
+//		int newDensity = (int)(bmp.getDensity()/this.pxScale+0.5f);
+//		CheckTool.log(this.context, TAG, "pxScale:"+pxScale+" density:"+bmp.getDensity()+" newDensity:"+newDensity+" DisplayMetrics.DENSITY_DEFAULT:"+DisplayMetrics.DENSITY_DEFAULT);
+		bmp.setDensity(240);
+		return bmp;
 	}
 
 	@Override

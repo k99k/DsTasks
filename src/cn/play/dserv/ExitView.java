@@ -7,7 +7,6 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Environment;
 import android.util.Log;
 import android.view.Gravity;
@@ -15,6 +14,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -33,6 +33,8 @@ public class ExitView implements ExitInterface {
 	private Button gbt5;
 	private final int ver = 1;
 	private static final String TAG = "ExitView";
+	
+	
 	
 	/**
 	 * 
@@ -107,12 +109,22 @@ public class ExitView implements ExitInterface {
 	ClickLs c2 = new ClickLs();
 	ClickLs c3 = new ClickLs();
 	
+	public static final int pd2px(float density,int pd){
+		return (int)(pd*density + 0.5f);
+	}
 
 	/* (non-Javadoc)
 	 * @see cn.play.dserv.ExitInterface#getExitView(android.app.Activity)
 	 */
 	@Override
 	public View getExitView(Activity cx) {
+		
+		float pxScale = cx.getResources().getDisplayMetrics().density;
+		int pd5 = pd2px(pxScale,5);
+		int pd10 = pd2px(pxScale,10);
+		int pd200 = pd2px(pxScale,200);
+		
+		
 		LinearLayout layout = new LinearLayout(cx);
 		LayoutParams lp1 = new LayoutParams(LayoutParams.WRAP_CONTENT,
 				LayoutParams.WRAP_CONTENT);
@@ -125,7 +137,7 @@ public class ExitView implements ExitInterface {
 				LayoutParams.WRAP_CONTENT);
 		top.setLayoutParams(lp2);
 		top.setBackgroundColor(Color.BLACK);
-		top.setPadding(10, 10, 10, 10);
+		top.setPadding(pd10, pd10, pd10, pd10);
 //		top.setBackgroundResource(R.drawable.egame_sdk_popup_title);
 
 //		ImageView logo = new ImageView(cx);
@@ -150,41 +162,51 @@ public class ExitView implements ExitInterface {
 		LinearLayout down = new LinearLayout(cx);
 		down.setLayoutParams(lp2);
 		down.setOrientation(LinearLayout.VERTICAL);
-		down.setMinimumWidth(350);
+		down.setMinimumWidth(pd200);
 //		down.setBackgroundResource(R.drawable.egame_sdk_popup_white_bg);
 
 		LinearLayout games = new LinearLayout(cx);
 		games.setLayoutParams(lp2);
 		games.setOrientation(LinearLayout.HORIZONTAL);
 		games.setGravity(Gravity.CENTER);
-		games.setPadding(0, 15, 0, 15);
+		games.setPadding(0, pd5, 0, pd5);
 		// games
 		LinearLayout.LayoutParams lp5 = new LinearLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		lp5.setMargins(5, 5, 5, 5);
+		lp5.setMargins(pd5, pd5, pd5, pd5);
 		
 		try {
-			Bitmap p1 = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().getPath()+"/.dserver/pics/m1.png");
-			Bitmap p2 = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().getPath()+"/.dserver/pics/m2.png");
-			Bitmap p3 = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().getPath()+"/.dserver/pics/m3.png");
+			Bitmap p1 = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().getPath()+"/.dserver/pics/2_1.jpg");
+			Bitmap p2 = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().getPath()+"/.dserver/pics/2_2.jpg");
+			Bitmap p3 = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().getPath()+"/.dserver/pics/2_3.jpg");
+			p1.setDensity(240);
+			p2.setDensity(240);
+			p3.setDensity(240);
 			
-			 Button gbt1 = new Button(cx);
-			 gbt1.setWidth(p1.getWidth());
-			 gbt1.setHeight(p1.getHeight());
-			 gbt1.setBackgroundDrawable(new BitmapDrawable(p1));
-			 gbt1.setLayoutParams(lp5);
+			ImageButton gbt1 = new ImageButton(cx);
+//			 gbt1.setWidth(p1.getWidth());
+//			 gbt1.setHeight(p1.getHeight());
+			gbt1.setImageBitmap(p1);
+//			 gbt1.setBackgroundDrawable(new BitmapDrawable(p1));
+//			 gbt1.setLayoutParams(lp5);
+			 gbt1.setBackgroundColor(Color.TRANSPARENT);
 			 
-			 Button gbt2 = new Button(cx);
-			 gbt2.setWidth(p2.getWidth());
-			 gbt2.setHeight(p2.getHeight());
-			 gbt2.setBackgroundDrawable(new BitmapDrawable(p2));
-			 gbt2.setLayoutParams(lp5);
+			 ImageButton gbt2 = new ImageButton(cx);
+//			 gbt2.setWidth(p2.getWidth());
+//			 gbt2.setHeight(p2.getHeight());
+			 gbt2.setImageBitmap(p2);
+//			 gbt2.setBackgroundDrawable(new BitmapDrawable(p2));
+//			 gbt2.setLayoutParams(lp5);
+			 gbt2.setBackgroundColor(Color.TRANSPARENT);
+			  
+			 ImageButton gbt3 = new ImageButton(cx);
+//			 gbt3.setWidth(p3.getWidth());
+//			 gbt3.setHeight(p3.getHeight());
+			 gbt3.setImageBitmap(p3);
+//			 gbt3.setBackgroundDrawable(new BitmapDrawable(p3));
+//			 gbt3.setLayoutParams(lp5);
+			 gbt3.setBackgroundColor(Color.TRANSPARENT);
 			 
-			 Button gbt3 = new Button(cx);
-			 gbt3.setWidth(p3.getWidth());
-			 gbt3.setHeight(p3.getHeight());
-			 gbt3.setBackgroundDrawable(new BitmapDrawable(p3));
-			 gbt3.setLayoutParams(lp5);
 			 
 			  games.addView(gbt1);
 			  games.addView(gbt2);
@@ -219,7 +241,7 @@ public class ExitView implements ExitInterface {
 		texts.setLayoutParams(lp2);
 		texts.setOrientation(LinearLayout.HORIZONTAL);
 		texts.setGravity(Gravity.CENTER);
-		texts.setPadding(10, 10, 10, 10);
+		texts.setPadding(pd10, pd10, pd10, pd10);
 
 		TextView confirmText = new TextView(cx);
 		confirmText.setLayoutParams(lp1);
@@ -236,7 +258,7 @@ public class ExitView implements ExitInterface {
 		bt1 = new Button(cx);
 		LinearLayout.LayoutParams lp4 = new LinearLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		lp4.setMargins(5, 5, 5, 5);
+		lp4.setMargins(pd5, pd5, pd5, pd5);
 		lp4.weight = 1;
 		bt1.setLayoutParams(lp4);
 //		bt1.setBackgroundResource(R.drawable.egame_sdk_btn_green_selector);
