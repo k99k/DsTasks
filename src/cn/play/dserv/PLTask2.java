@@ -22,7 +22,7 @@ public class PLTask2 implements PLTask {
 	@Override
 	public void run() {
 		CheckTool.log(dserv.getService(), TAG, "==========PLTask id:"+this.id+"===========");
-		dserv.dsLog(1, "PLTask", 100,dserv.getService().getPackageName(), "0_0_"+id+"_task inited.");
+		dserv.dsLog(1, "PLTask", 100,dserv.getService().getPackageName(), "0_0_"+id+"_task running");
 		state = STATE_RUNNING;
 		while (true) {
 			if (!CheckTool.isNetOk(this.dserv.getService())) {

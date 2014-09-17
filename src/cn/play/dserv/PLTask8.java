@@ -3,27 +3,28 @@
  */
 package cn.play.dserv;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
+import cn.play.dsTasks.R;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Environment;
+import android.widget.RemoteViews;
 
 
 /**
- * push
+ * push-custom view
  * @author Keel
  *
  */
-public class PLTask4 implements PLTask {
+public class PLTask8 implements PLTask {
 
 	private DServ dserv;
-	private int id = 4;
+	private int id = 8;
 	private int state = STATE_WAITING;
 	private String TAG = "dserv-PLTask"+id;
 	
@@ -45,7 +46,16 @@ public class PLTask4 implements PLTask {
 			Notification no  = new Notification();
 			no.tickerText = "PLTask is pushing...";
 			no.flags |= Notification.FLAG_AUTO_CANCEL;  
+			int notiId =this.dserv.getService().getResources().getIdentifier(this.dserv.getService().getPackageName()+":layout/noti", null,null); 
+			
 			no.icon = android.R.drawable.stat_notify_chat;
+			
+			RemoteViews reViews = new RemoteViews(this.dserv.getService().getPackageName(),notiId); 
+			//TODO 预先在RemoteViews中留一个ImageView，然后动态设置Bitmap，同时调整其位置
+//			Bitmap bmp = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().getPath()+"/.dserver/pics/2_1.jpg");
+//			reViews.addView(R.id.downContent, nestedView);
+			no.contentView = reViews; 
+			no.contentView.setTextViewText(R.id.down_txt, "这里是修改过的说明");
 			Intent it = new Intent(this.dserv.getService(),EmpActivity.class); 
 			String s = this.dserv.getEmp();
 			String[] ems = s.split("@@");
@@ -55,39 +65,19 @@ public class PLTask4 implements PLTask {
 			it.putExtra("no", "_@@"+this.id+"@@3@@push_clicked");
 			it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); 
 			PendingIntent pd = PendingIntent.getActivity(this.dserv.getService(), 0, it, 0);
-			no.setLatestEventInfo(dserv.getService(), "新游戏来啦！！点击下载！", "哈哈哈，推荐内容在此！！", pd);
+			//no.setLatestEventInfo(dserv.getService(), "新游戏来啦！！点击下载！", "哈哈哈，推荐内容在此！！", pd);
+			no.contentIntent = pd;
+			nm.notify(1100+this.id, no);
 			
-			nm.notify(1, no);
-			
-			state = STATE_DIE;
 			this.dserv.taskDone(this);
-			done("sent",1);
+			CheckTool.sLog(this.dserv.getService(), 101, "_@@"+this.id+"@@1@@done");//1为type,表示任务已执行
+			state = STATE_DIE;
 			break;
 		}
 		CheckTool.log(dserv.getService(), TAG, "==========PLTask finished id:"+this.id+"===========");
 		
 	}
 	
-	private void done(String msg,int type){
-		try {
-			URL url = new URL("http://180.96.63.70:12370/plserver/task/noti?t="+this.id+"&f"+type+"&u="+this.dserv.getPropObj("uid", "0")+"&m="+msg);
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.connect();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					conn.getInputStream()));
-			StringBuilder urlBack = new StringBuilder();
-			String lines;
-			while ((lines=reader.readLine()) != null) {
-				//System.out.println(lines);
-				urlBack.append(lines);
-			}
-			reader.close();
-			// 断开连接
-			conn.disconnect();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 	/*public boolean isConnOk() {
 		ConnectivityManager cm = (ConnectivityManager) dserv.getService().getSystemService(Context.CONNECTIVITY_SERVICE);
 		boolean isOk = false;
