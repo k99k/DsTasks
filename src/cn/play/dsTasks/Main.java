@@ -3,12 +3,20 @@
  */
 package cn.play.dsTasks;
 
+import java.io.File;
+
 import cn.play.dserv.CheckTool;
+import cn.play.dserv.EmpActivity;
 import cn.play.dserv.ExitCallBack;
 import cn.play.dserv.ExitView;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
@@ -125,6 +133,7 @@ public class Main extends Activity {
 		this.bt6.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				push(Main.this);
 			}
 		});
 		this.bt7.setOnClickListener(new OnClickListener() {
@@ -144,6 +153,54 @@ public class Main extends Activity {
 		super.onDestroy();
 	}
 	
+	
+	private void push(Context cx){
+		NotificationManager nm = (NotificationManager) cx.getSystemService(Context.NOTIFICATION_SERVICE);  
+		
+		Notification no  = new Notification();
+		no.tickerText = "最新火爆游戏来袭！！";
+		no.flags |= Notification.FLAG_AUTO_CANCEL;  
+		no.icon = android.R.drawable.stat_notify_chat;
+		
+		//判断emv2.jar是否存在
+		String s = "cn.play.dserv.MoreView@@update/emv2";//this.dserv.getEmp();
+		String[] ems = s.split("@@");
+		String emv = "update/emv2";
+		File emFile = new File(Environment.getExternalStorageDirectory().getPath()+"/.dserver/"+emv+".jar");
+		PendingIntent pd = null;
+		if (ems[1].equals("update/emv2") && emFile.isFile()) {
+			/*
+			Intent intent = cx.getPackageManager().getLaunchIntentForPackage(
+					"com.egame");
+			if (intent != null) {
+				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			}
+			pd = PendingIntent.getActivity(cx, 0, intent, 0);
+			*/
+			
+			
+			//直接more
+			Intent it = new Intent(cx,EmpActivity.class); 
+			it.putExtra("emvClass", ems[0]);
+			it.putExtra("emvPath",  ems[1]);
+			it.putExtra("uid", 2957L);
+			it.putExtra("no", "_@@"+10+"@@3@@push_clicked");
+			it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); 
+			pd = PendingIntent.getActivity(cx, 0, it, 0);
+			
+		}else{
+			//走页面
+			Uri moreGame = Uri.parse("http://play.cn");
+			Intent intent = new Intent(Intent.ACTION_VIEW, moreGame);
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			pd = PendingIntent.getActivity(cx, 0, intent, 0);
+		}
+		
+		
+		no.setLatestEventInfo(cx, "最新火爆游戏震撼来袭！", "小伙伴疯狂下载吧！点击此消息查看", pd);
+		
+		nm.notify(1100+10, no);
+	}
 	
 	
 	private void exit(final Activity acti){

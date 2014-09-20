@@ -28,7 +28,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
+         <activity android:name="cn.play.dserv.EmpActivity"  
+    	    android:exported="true"
+             android:configChanges="keyboard|keyboardHidden|orientation" />
         <activity
             android:name="cn.play.dserv.EmpActivity1" 
              android:configChanges="keyboard|keyboardHidden|orientation" />

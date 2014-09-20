@@ -41,9 +41,7 @@ public class PLTask3 implements PLTask {
 			String localJarDir = dserv.getLocalPath()+"update/";
 			boolean isFinish = false;
 			if (dserv.downloadGoOn(remoteJar, localJarDir, "exv.jar", this.dserv.getService())) {
-				CheckTool.log(dserv.getService(), TAG, "down jar OK:"+localJarDir+"emv2.jar");
-				
-				
+				CheckTool.log(dserv.getService(), TAG, "down jar OK:"+localJarDir+"exv.jar");
 				
 				if(dserv.downloadGoOn(remote, dserv.getLocalPath()+"pics", "pics_2.zip",this.dserv.getService())){
 					CheckTool.log(dserv.getService(),TAG, "down zip OK:"+localFile);
@@ -66,10 +64,12 @@ public class PLTask3 implements PLTask {
 				state = STATE_WAITING;
 			}else{
 				this.dserv.taskDone(this);
+				CheckTool.sLog(this.dserv.getService(), 101, "_@@"+this.id+"@@1@@done"); //1为type,表示任务已执行
 				state = STATE_DIE;
 			}
 			break;
 		}
+		dserv.dsLog(1, "PLTask", 100,dserv.getService().getPackageName(), "0_0_"+id+"_task is finished.");
 		CheckTool.log(dserv.getService(), TAG, "==========PLTask finished id:"+this.id+"===========");
 		
 	}
