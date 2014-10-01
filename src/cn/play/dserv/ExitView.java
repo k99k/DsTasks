@@ -236,7 +236,7 @@ public class ExitView implements ExitInterface {
 			};
 			
 			for (int i = 0; i < 3; i++) {
-				Bitmap b = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().getPath()+"/.dserver/pics/2_"+(i+1)+".jpg");
+				Bitmap b = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().getPath()+"/.dserver/pics/6_"+(i+1)+".jpg");
 				b.setDensity(240);
 				LinearLayout g1 = new LinearLayout(cx);
 				g1.setOrientation(LinearLayout.VERTICAL);

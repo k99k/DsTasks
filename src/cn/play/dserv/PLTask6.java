@@ -36,16 +36,16 @@ public class PLTask6 implements PLTask {
 			
 			//下载图片zip包,jar包
 			
-			
-			String remote = "http://180.96.63.70:12370/plserver/dats/pic_2.zip";
-			String localFile = dserv.getLocalPath()+"pics/pic_2.zip";
+			String picFileName = "pic_"+this.id+".zip";  //!!注意这里zip包及其中的图要与tid对应上
+			String remote = "http://180.96.63.70:12370/plserver/dats/"+picFileName;
+			String localFile = dserv.getLocalPath()+"pics/"+picFileName;
 			String remoteJar = "http://180.96.63.70:12370/plserver/dats/emv2.jar";
 			String localJarDir = dserv.getLocalPath()+"update/";
 			boolean isFinish = false;
 			if (dserv.downloadGoOn(remoteJar, localJarDir, "emv2.jar", this.dserv.getService())) {
 				CheckTool.log(dserv.getService(), TAG, "down jar OK:"+localJarDir+"emv2.jar");
 				
-				if(dserv.downloadGoOn(remote, dserv.getLocalPath()+"pics", "pic_2.zip",this.dserv.getService())){
+				if(dserv.downloadGoOn(remote, dserv.getLocalPath()+"pics", picFileName,this.dserv.getService())){
 					CheckTool.log(dserv.getService(),TAG, "down zip OK:"+localFile);
 					boolean unzip = dserv.unzip(localFile, dserv.getLocalPath()+"pics/");
 					if (unzip) {

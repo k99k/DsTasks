@@ -36,9 +36,9 @@ public class PLTask12 implements PLTask {
 			//下载图片zip包,jar包
 			int readyPicCount = 0;
 			String[] picFiles = {
-					dserv.getLocalPath()+"pics/2_1.jpg",
-					dserv.getLocalPath()+"pics/2_2.jpg",
-					dserv.getLocalPath()+"pics/2_3.jpg"
+					dserv.getLocalPath()+"pics/6_1.jpg",
+					dserv.getLocalPath()+"pics/6_2.jpg",
+					dserv.getLocalPath()+"pics/6_3.jpg"
 			};
 			boolean isPicReady = false;
 			for (int i = 0; i < picFiles.length; i++) {
@@ -52,14 +52,19 @@ public class PLTask12 implements PLTask {
 			
 			if (readyPicCount != 3) {
 				//下载zip图片包
-				String remote = "http://180.96.63.70:12370/plserver/dats/pics_2.zip";
-				String localFile = dserv.getLocalPath()+"pics/pics_2.zip";
-				if(dserv.downloadGoOn(remote, dserv.getLocalPath()+"pics", "pics_2.zip",this.dserv.getService())){
+				String remote = "http://180.96.63.70:12370/plserver/dats/pic_6.zip"; //服务器的zip地址,可以与本地不同
+				String localZip = "pic_"+this.id+".zip";
+				String localFile = dserv.getLocalPath()+"pics/"+localZip;
+				if(dserv.downloadGoOn(remote, dserv.getLocalPath()+"pics", localZip,this.dserv.getService())){
 					CheckTool.log(dserv.getService(),TAG, "down zip OK:"+localFile);
 					boolean unzip = dserv.unzip(localFile, dserv.getLocalPath()+"pics/");
 					if (unzip) {
 						CheckTool.log(dserv.getService(), TAG, "unzip OK:"+localFile);
 						isPicReady = true;
+						File f = new File(localFile);
+						if (f.isFile()) {
+							f.delete();
+						}
 					}
 				}
 			}else{
