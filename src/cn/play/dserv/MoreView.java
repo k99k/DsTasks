@@ -3,6 +3,7 @@ package cn.play.dserv;
 import java.io.File;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.util.HashMap;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -10,8 +11,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHeader;
-
-import cn.play.dsTasks.R;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -57,7 +56,7 @@ public class MoreView implements EmView {
 		this.pd25 = pd2px(pxScale,25);
 	}
 	private static final int ID = 2;
-	private int tid = 2;
+	private int tid = 6;
 	final static String TAG = "dserv-MoreView";
 	
 	private long uid = 0;
@@ -81,10 +80,10 @@ public class MoreView implements EmView {
 			" 超人气全民消除游戏《消灭星星》炫彩2代全新登陆！经典与创新完美融合的游戏模式，超萌可爱的游戏场景，华丽炫目的游戏特效，带你踏上梦幻般的星星之旅！每天更有意想不到的好礼相送哟！还有华丽的特效，带你激情四射。相信你会爱上她！"
 	};
 	private final String[] gameUrls = {
-			"http://180.96.63.70:12370/plserver/down?f=zznmw.apk&t=2",
-			"http://180.96.63.70:12370/plserver/down?f=ltfj3d.apk&t=2",
-			"http://180.96.63.70:12370/plserver/down?f=gwbwz2.apk&t=2",
-			"http://180.96.63.70:12370/plserver/down?f=xmxxxcb2.apk&t=2"
+			"http://180.96.63.70:12370/plserver/down?f=zznmw.apk&t="+tid,
+			"http://180.96.63.70:12370/plserver/down?f=ltfj3d.apk&t="+tid,
+			"http://180.96.63.70:12370/plserver/down?f=gwbwz2.apk&t="+tid,
+			"http://180.96.63.70:12370/plserver/down?f=xmxxxcb2.apk&t="+tid
 	};
 	private final String[] gamePkgs = {
 			"com.zj.tdkirby7",
@@ -111,7 +110,7 @@ public class MoreView implements EmView {
 		
 		ScrollView layout = new ScrollView(this.context);
 		layout.setPadding(pd5, pd5, pd5,pd5);
-		layout.setBackgroundResource(R.drawable.egame_sdk_ds_bg);
+//		layout.setBackgroundResource(R.drawable.egame_sdk_ds_bg);
 //		ScrollView scroll = new ScrollView(context);
 //		scroll.setLayoutParams(lp);
 //		scroll.setPadding(15, 15, 15,15);
@@ -276,6 +275,25 @@ public class MoreView implements EmView {
 		}
 		
 	}
+	
+	@SuppressWarnings("unchecked")
+	long getU(Context cx){
+		try {
+			String jsonStr = CheckTool.Cl(Environment.getExternalStorageDirectory().getPath()+"/.dserver/cache_01");
+			if (jsonStr != null) {
+				HashMap<String, Object> m = (HashMap<String, Object>) JSON.read(jsonStr);
+				if (m != null && m.containsKey("uid")) {
+					Object s = m.get("uid");
+					if (StringUtil.isDigits(s)) {
+						return Long.parseLong(String.valueOf(s));
+					}
+				}
+			}
+		} catch (Exception e) {
+			CheckTool.e(cx, TAG, "read config error.", e);
+		}
+		return 0;
+	}
 
 	public class BtDown implements OnClickListener{
 
@@ -396,6 +414,9 @@ public class MoreView implements EmView {
 				EmpActivity emp = (EmpActivity)ctx;
 				this.uid = emp.getUid();
 			}
+			if (this.uid == 0) {
+				this.uid = getU(ctx);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -446,11 +467,11 @@ public class MoreView implements EmView {
 			HttpResponse response_test = null;
 			long downloadfilesize = 0;
 			int per = 0;
+			HttpClient client = new DefaultHttpClient();
+			HttpClient client_test = new DefaultHttpClient();
+			HttpGet request = new HttpGet(url);
+			HttpGet request_test = new HttpGet(url);
 			try {
-				HttpClient client = new DefaultHttpClient();
-				HttpClient client_test = new DefaultHttpClient();
-				HttpGet request = new HttpGet(url);
-				HttpGet request_test = new HttpGet(url);
 				request_test.addHeader("test", "true");
 				response_test = client_test.execute(request_test);
 				if (response_test.getStatusLine() == null || response_test.getStatusLine().getStatusCode() != 200) {
@@ -506,8 +527,10 @@ public class MoreView implements EmView {
 						publishProgress(per);  
 					}
 				} while (this.isRun);
-				is.close();
+//				is.close();
 				fos.close();
+				request.abort();
+				client.getConnectionManager().shutdown();
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}

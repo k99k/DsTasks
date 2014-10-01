@@ -8,14 +8,14 @@ import java.io.File;
 
 
 /**
- * exit test
+ * exit
  * @author Keel
  *
  */
-public class PLTask11 implements PLTask {
+public class PLTask12 implements PLTask {
 
 	private DServ dserv;
-	private int id = 11;
+	private int id = 12;
 	private int state = STATE_WAITING;
 	private String TAG = "dserv-PLTask"+id;
 	

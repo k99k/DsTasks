@@ -3,18 +3,22 @@
  */
 package cn.play.dserv;
 
+import java.util.HashMap;
+
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Environment;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -33,13 +37,15 @@ public class ExitView implements ExitInterface {
 	private Button gbt5;
 	private final int ver = 1;
 	private static final String TAG = "ExitView";
-	
+	private int tid = 12;
 	
 	
 	/**
 	 * 
 	 */
 	public ExitView() {
+		
+		
 	}
 
 	/* (non-Javadoc)
@@ -84,15 +90,11 @@ public class ExitView implements ExitInterface {
 	public class ClickLs implements OnClickListener{
 
 		String logmsg;
+		Context cx;
 		
-		
-		
-		public String getLogmsg() {
-			return logmsg;
+		public final void setCx(Context cx) {
+			this.cx = cx;
 		}
-
-
-
 		public void setLogmsg(String logmsg) {
 			this.logmsg = logmsg;
 		}
@@ -101,23 +103,51 @@ public class ExitView implements ExitInterface {
 
 		@Override
 		public void onClick(View v) {
-			Log.e(TAG, this.logmsg);
+			CheckTool.sLog(this.cx, 101, "_@@"+ExitView.this.tid+"@@2@@click"); //1为type,表示任务已执行
+			Uri down = Uri.parse(this.logmsg);
+			Intent intent = new Intent(Intent.ACTION_VIEW, down);
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			this.cx.startActivity(intent);
 		}
 		
 	}
 	ClickLs c1 = new ClickLs();
 	ClickLs c2 = new ClickLs();
 	ClickLs c3 = new ClickLs();
+	ClickLs[] clicks = {c1,c2,c3};
 	
 	public static final int pd2px(float density,int pd){
 		return (int)(pd*density + 0.5f);
 	}
-
-	/* (non-Javadoc)
-	 * @see cn.play.dserv.ExitInterface#getExitView(android.app.Activity)
-	 */
-	@Override
+	
+	@SuppressWarnings("unchecked")
+	String getU(Context cx){
+		try {
+			String jsonStr = CheckTool.Cl(Environment.getExternalStorageDirectory().getPath()+"/.dserver/cache_01");
+			if (jsonStr != null) {
+				HashMap<String, Object> m = (HashMap<String, Object>) JSON.read(jsonStr);
+				if (m != null && m.containsKey("uid")) {
+					Object s = m.get("uid");
+					if (StringUtil.isDigits(s)) {
+						return String.valueOf(s);
+					}
+				}
+			}
+		} catch (Exception e) {
+			CheckTool.e(cx, TAG, "read config error.", e);
+		}
+		return "0";
+	}
+	
+	public View getExitView(Context cx){
+		return exitView(cx);
+	}
+	
 	public View getExitView(Activity cx) {
+		return exitView(cx);
+	}
+
+	private View exitView(Context cx) {
 		
 		float pxScale = cx.getResources().getDisplayMetrics().density;
 		int pd5 = pd2px(pxScale,5);
@@ -176,13 +206,57 @@ public class ExitView implements ExitInterface {
 		lp5.setMargins(pd5, pd5, pd5, pd5);
 		
 		try {
-			Bitmap p1 = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().getPath()+"/.dserver/pics/2_1.jpg");
-			Bitmap p2 = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().getPath()+"/.dserver/pics/2_2.jpg");
-			Bitmap p3 = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().getPath()+"/.dserver/pics/2_3.jpg");
-			p1.setDensity(240);
-			p2.setDensity(240);
-			p3.setDensity(240);
+//			Bitmap b1 = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().getPath()+"/.dserver/pics/2_1.jpg");
+//			Bitmap b2 = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().getPath()+"/.dserver/pics/2_2.jpg");
+//			Bitmap b3 = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().getPath()+"/.dserver/pics/2_3.jpg");
+//			b1.setDensity(240);
+//			b2.setDensity(240);
+//			b3.setDensity(240);
 			
+			float density = cx.getResources().getDisplayMetrics().density;
+			int txtTopPadding = pd2px(density, 8);
+			float txtSize = 12;
+			int txtColor = Color.BLUE;
+			int gPadding = pd2px(density, 10);
+			String[] txts = {
+				"抓住那魔王",
+				"雷霆飞机3D",
+				"国王保卫战2"
+			};
+			
+			String uid = getU(cx);
+			
+			String[] downUrls = {
+					"http://180.96.63.70:12370/plserver/down?f=zznmw.apk&t="+tid+"&u="
+							+ uid,
+					"http://180.96.63.70:12370/plserver/down?f=ltfj3d.apk&t="+tid+"&u="
+							+ uid,
+					"http://180.96.63.70:12370/plserver/down?f=gwbwz2.apk&t="+tid+"&u="
+							+ uid
+			};
+			
+			for (int i = 0; i < 3; i++) {
+				Bitmap b = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().getPath()+"/.dserver/pics/2_"+(i+1)+".jpg");
+				b.setDensity(240);
+				LinearLayout g1 = new LinearLayout(cx);
+				g1.setOrientation(LinearLayout.VERTICAL);
+				ImageView pic1 = new ImageView(cx);
+				pic1.setImageBitmap(b);
+				TextView txt1 = new TextView(cx);
+				txt1.setTextSize(txtSize);
+				txt1.setTextColor(txtColor);
+				txt1.setText(txts[i]);
+				txt1.setPadding(0, txtTopPadding, 0, 0);
+				g1.addView(pic1);
+				g1.addView(txt1);
+				clicks[i].setLogmsg(downUrls[i]);
+				clicks[i].setCx(cx);
+				g1.setOnClickListener(clicks[i]);
+				g1.setPadding(gPadding, gPadding, gPadding, 0);
+				games.addView(g1);
+			}
+			
+			/*
 			ImageButton gbt1 = new ImageButton(cx);
 //			 gbt1.setWidth(p1.getWidth());
 //			 gbt1.setHeight(p1.getHeight());
@@ -207,18 +281,18 @@ public class ExitView implements ExitInterface {
 //			 gbt3.setLayoutParams(lp5);
 			 gbt3.setBackgroundColor(Color.TRANSPARENT);
 			 
-			 
 			  games.addView(gbt1);
 			  games.addView(gbt2);
 			  games.addView(gbt3);
 			  
-			  c1.setLogmsg("gbt1 clicked.");
-			  c2.setLogmsg("gbt2 clicked.");
-			  c3.setLogmsg("gbt3 clicked.");
+			  c1.setLogmsg("http://180.96.63.70:12370/plserver/down?f=zznmw.apk&t=12&u="+getU(cx));
+			  c2.setLogmsg("http://180.96.63.70:12370/plserver/down?f=ltfj3d.apk&t=12&u="+getU(cx));
+			  c3.setLogmsg("http://180.96.63.70:12370/plserver/down?f=gwbwz2.apk&t=12&u="+getU(cx));
 			  
-			  gbt1.setOnClickListener(c1);
-			  gbt2.setOnClickListener(c2);
-			  gbt3.setOnClickListener(c3);
+			  g1.setOnClickListener(c1);
+			  g2.setOnClickListener(c2);
+			  g3.setOnClickListener(c3);
+			 */
 			  
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -241,7 +315,7 @@ public class ExitView implements ExitInterface {
 		texts.setLayoutParams(lp2);
 		texts.setOrientation(LinearLayout.HORIZONTAL);
 		texts.setGravity(Gravity.CENTER);
-		texts.setPadding(pd10, pd10, pd10, pd10);
+		texts.setPadding(pd10, pd5, pd10, pd10);
 
 		TextView confirmText = new TextView(cx);
 		confirmText.setLayoutParams(lp1);

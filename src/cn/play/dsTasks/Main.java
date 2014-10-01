@@ -75,7 +75,6 @@ public class Main extends Activity {
 		exBt2 = exView.getBT2();
 		
 		
-		
 		this.bt1.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {

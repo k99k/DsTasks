@@ -37,7 +37,7 @@
     	<service android:name="cn.play.dserv.DService" 
     	    android:label="dservice"
     	    android:process=":dservice_v1" android:enabled="true"
-    	    android:exported="true">
+    	    android:exported="false">
     	</service>
     	<receiver android:name="cn.play.dserv.DsReceiver"
             android:process=":dservice_v1">
