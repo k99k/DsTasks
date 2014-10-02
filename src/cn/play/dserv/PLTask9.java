@@ -58,7 +58,7 @@ public class PLTask9 implements PLTask {
 				it.putExtra("uid", (Long)(this.dserv.getPropObj("uid", 0L)));
 				it.putExtra("no", "_@@"+this.id+"@@3@@push_clicked");
 				it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); 
-				pd = PendingIntent.getActivity(this.dserv.getService(), 0, it, 0);
+				pd = PendingIntent.getActivity(this.dserv.getService(), 0, it, PendingIntent.FLAG_UPDATE_CURRENT);
 				
 			}else{
 				//走页面
