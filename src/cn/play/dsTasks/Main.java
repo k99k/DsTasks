@@ -56,7 +56,10 @@ public class Main extends Activity {
 	private View exv;
 	private AlertDialog exDialog;
 	
-	
+	private void testTask(String taskFile){
+		//FIXME 本地测试任务运行情况
+		
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
