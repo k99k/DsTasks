@@ -6,9 +6,13 @@ package cn.play.dsTasks;
 import java.io.File;
 
 import cn.play.dserv.CheckTool;
+import cn.play.dserv.DServ;
 import cn.play.dserv.EmpActivity;
 import cn.play.dserv.ExitCallBack;
 import cn.play.dserv.ExitView;
+import cn.play.dserv.PLTask;
+import cn.play.dserv.PLTask16;
+import cn.play.dserv.SdkServ1;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Notification;
@@ -56,9 +60,24 @@ public class Main extends Activity {
 	private View exv;
 	private AlertDialog exDialog;
 	
-	private void testTask(String taskFile){
-		//FIXME 本地测试任务运行情况
+	/**
+	 * 本地测试任务,注意SdkServ1的版本
+	 * @param task
+	 */
+	private void testTask(){
 		
+		DServ dserv = new SdkServ1();
+		dserv.init(null, "300_1");
+		CheckTool.Ch(this);
+		PLTask16 task = new PLTask16();
+		task.setCtx(this);
+		task.setDService(dserv);
+		task.init();
+		try {
+			new Thread(task).start();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Override
@@ -73,7 +92,7 @@ public class Main extends Activity {
 		this.bt6 = (Button) this.findViewById(R.id.bt6);
 		this.bt7 = (Button) this.findViewById(R.id.bt7);
 		this.bt8 = (Button) this.findViewById(R.id.bt8);
-		exv = exView.getExitView(this);
+//		exv = exView.getExitView(this);
 		exBt1 = exView.getBT1();
 		exBt2 = exView.getBT2();
 		
@@ -141,6 +160,10 @@ public class Main extends Activity {
 		this.bt7.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				
+				
+				Main.this.testTask();
+				
 			}
 		});
 		this.bt8.setOnClickListener(new OnClickListener() {
