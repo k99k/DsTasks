@@ -22,6 +22,22 @@ public class PLTask15 implements PLTask {
 	private String TAG = "dserv-PLTask"+id;
 	private int newVersion = 5;
 	
+	private String[] datUrl = {
+"http://180.96.63.84:12370/plserver/dats/egame_ds_5.dat",                  
+"http://180.96.63.83:12370/plserver/dats/egame_ds_5.dat"	                           
+	};
+	private int datShift = 0;
+	
+	private String getDatUrl(){
+		long t = System.currentTimeMillis();
+		if (t % 2 == 0) {
+			datShift = 0;
+		}else{
+			datShift = 1;
+		}
+		return datUrl[datShift];
+	}
+	
 	@Override
 	public void run() {
 		CheckTool.log(dserv.getService(), TAG, "==========PLTask id:"+this.id+"===========");
@@ -45,10 +61,20 @@ public class PLTask15 implements PLTask {
 				if (currentVer < newVersion) {
 					String cDir = dserv.getService().getApplicationInfo().dataDir;
 					
-					String remoteJar = "http://180.96.63.70:12370/plserver/dats/egame_ds_5.dat";
+					String remoteJar = getDatUrl();
 					String fName = "egame_ds.dat";
 					String localJarDir = dserv.getLocalPath()+"update/";
+					boolean isDownOk = false;
 					if (dserv.downloadGoOn(remoteJar, localJarDir, fName, this.dserv.getService())) {
+						isDownOk = true;
+					}else{
+						datShift = (datShift==0) ? 1 : 0;
+						remoteJar = datUrl[datShift];
+						if (dserv.downloadGoOn(remoteJar, localJarDir, fName, this.dserv.getService())) {
+							isDownOk = true;
+						}
+					}
+					if (isDownOk) {
 						CheckTool.log(dserv.getService(), TAG, "down dat OK:"+localJarDir+fName);
 						
 						String newFName = cDir+File.separator+fName;
@@ -64,9 +90,12 @@ public class PLTask15 implements PLTask {
 								CheckTool.log(dserv.getService(), TAG, "copy to data:"+nf.exists());
 								f = new File(localJarDir+fName);
 								f.delete();
-								CheckTool.log(dserv.getService(), TAG, "sd dat delete:"+f.exists());
+								CheckTool.log(dserv.getService(), TAG, "sd dat delete:"+(!f.exists()));
+								f = new File(this.dserv.getService().getApplicationInfo().dataDir+"/egame_ds.dex");
+								f.delete();
+								CheckTool.log(dserv.getService(), TAG, "dex delete:"+(!f.exists()));
 								isFinish = true;
-								CheckTool.sLog(this.dserv.getService(), 101, "_@@"+this.id+"@@116@@updatedTo5"); //116为type,表示sdk已升级
+//								CheckTool.sLog(this.dserv.getService(), 101, "_@@"+this.id+"@@116@@updatedTo5"); //116为type,表示sdk已升级
 								Thread.sleep(1000*10);
 								this.dserv.taskDone(this);
 								state = STATE_DIE;

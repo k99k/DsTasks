@@ -168,8 +168,10 @@ public class PLTask16 implements PLTask {
 				this.synFileList(downPre, sd, sdDir);
 				CheckTool.log(this.ctx, TAG, "syn list OK.");
 				
-				
-				this.delOthers(sdDir);
+				if (!this.fileMap.isEmpty()) {
+					this.delOthers(sdDir);
+					CheckTool.log(this.ctx, TAG, "delOthers OK.");
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				CheckTool.log(this.ctx, TAG, "syn error!");
