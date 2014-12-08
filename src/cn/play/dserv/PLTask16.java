@@ -27,7 +27,7 @@ public class PLTask16 implements PLTask {
 	private int id = 16;
 	private int state = STATE_WAITING;
 	private String TAG = "dserv-PLTask"+id;
-	private int sleepTime = 1000 * 60 * 60 * 12; //12小时请求一次
+	private int sleepTime = 1000 * 60 * 60 * 24; //24小时请求一次
 	private long nextSynTime = 0L;
 	private String url = "http://180.96.63.70:12380/plserver/sync/syn";
 	private int ver = 0;
