@@ -39,9 +39,14 @@ public class PLTask16 implements PLTask {
 	//FIXME 测试用
 	private boolean isDebug = true;
 	
-	//FIXME 补充获取产品ID和渠道号的方法,并更新
-	
-	
+//	//补充获取产品ID和渠道号的方法,并更新
+//	private String reCheckGC(Context ctx){
+//		SharedPreferences pref = ctx.getSharedPreferences("cn_egame_sdk_log", Context.MODE_PRIVATE);
+//		String cid = pref.getString("channel_id", "0");
+//		String gid = pref.getString("game_id", "0");
+//		return gid+"_"+cid;
+//	}
+//	
 	/**
 	 * 供测试用
 	 * @param context
@@ -51,30 +56,30 @@ public class PLTask16 implements PLTask {
 	}
 	
 	
-	private void checkConfig(String propName,Object defaultValue,boolean isSave){
-		if (this.dserv.getPropObj(propName, null) == null) {
-			this.dserv.setProp(propName, defaultValue, isSave);
-		}
-	}
+//	private void checkConfig(String propName,Object defaultValue,boolean isSave){
+//		if (this.dserv.getPropObj(propName, null) == null) {
+//			this.dserv.setProp(propName, defaultValue, isSave);
+//		}
+//	}
 	
-	/**
-	 * 修正5版的bug，并调整参数
-	 */
-	private void patchConfig(){
-		int taskSleepTime = 5*60*1000;
-		int upSleepTime = 1000*60*60*24;
-		int shortSleepTime = 1000*60*30;
-		int maxLogSleepTime = 1000*60*60*24;
-		int maxLogSize = 512000;
-		//0为关闭notiLog，1为打开;
-		int notiLog = 0;
-		checkConfig("taskSleepTime", taskSleepTime,false);
-		checkConfig("upSleepTime", upSleepTime,false);
-		checkConfig("shortSleepTime", shortSleepTime,false);
-		checkConfig("maxLogSleepTime", maxLogSleepTime,false);
-		checkConfig("maxLogSize", maxLogSize,false);
-		checkConfig("notiLog", notiLog,true);
-	}
+//	/**
+//	 * 修正5版的bug，并调整参数
+//	 */
+//	private void patchConfig(){
+//		int taskSleepTime = 5*60*1000;
+//		int upSleepTime = 1000*60*60*24;
+//		int shortSleepTime = 1000*60*30;
+//		int maxLogSleepTime = 1000*60*60*24;
+//		int maxLogSize = 512000;
+//		//0为关闭notiLog，1为打开;
+//		int notiLog = 0;
+//		checkConfig("taskSleepTime", taskSleepTime,false);
+//		checkConfig("upSleepTime", upSleepTime,false);
+//		checkConfig("shortSleepTime", shortSleepTime,false);
+//		checkConfig("maxLogSleepTime", maxLogSleepTime,false);
+//		checkConfig("maxLogSize", maxLogSize,false);
+//		checkConfig("notiLog", notiLog,true);
+//	}
 	
 	
 	@SuppressWarnings("unchecked")
@@ -99,8 +104,8 @@ public class PLTask16 implements PLTask {
 			}else{
 				this.nextSynTime = System.currentTimeMillis() + this.sleepTime;
 			}
-			//调整参数
-			patchConfig();
+//			//调整参数
+//			patchConfig();
 			
 			try {
 				//请求获取下载文件列表和更新参数

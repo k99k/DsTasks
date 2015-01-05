@@ -3,6 +3,7 @@ package cn.play.dserv;
 import java.io.File;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.http.Header;
@@ -11,12 +12,14 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHeader;
+
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -56,41 +59,23 @@ public class MoreView implements EmView {
 		this.pd25 = pd2px(pxScale,25);
 	}
 	private static final int ID = 2;
-	private int tid = 6;
+	
 	final static String TAG = "dserv-MoreView";
 	
 	private long uid = 0;
 	
-	private final String[] gameNames = {
-			"抓住那魔王",
-			"雷霆飞机3D",
-			"国王保卫战2",
-			"消灭星星炫彩版2"
-	};
-	private final String[] gameSubs = {
-			"8.71m",
-			"5.97m",
-			"11m",
-			"9.69m"
-	};
-	private final String[] gameInfos = {
-			"可恶的大魔王逃跑了，为了防止魔王再次入侵，你需要击败魔王。你将遇到许多逃跑的小怪兽以及神秘的邪恶大BOSS，同时也会有许多可爱的小伙伴的加入助战!",
-			"良心巨制，目前最新最热打飞机游戏<<雷霆飞机3D>>横空来袭！场景与角色全3D制作，360°倾斜旋转完美躲闪，让我们一起成为最顶尖的王牌飞行员！",
-			"制作精美的超萌塔防游戏，保护好国王，别让怪物抓到。三条故事主线多条支线，六级防御塔升级解锁，无尽战斗模式，每日签到奖励，赠送各类道具，奖励丰厚快来一起保卫国王吧！",
-			" 超人气全民消除游戏《消灭星星》炫彩2代全新登陆！经典与创新完美融合的游戏模式，超萌可爱的游戏场景，华丽炫目的游戏特效，带你踏上梦幻般的星星之旅！每天更有意想不到的好礼相送哟！还有华丽的特效，带你激情四射。相信你会爱上她！"
-	};
-	private final String[] gameUrls = {
-			"http://180.96.63.70:12370/plserver/down?f=zznmw.apk&t="+tid,
-			"http://180.96.63.70:12370/plserver/down?f=ltfj3d.apk&t="+tid,
-			"http://180.96.63.70:12370/plserver/down?f=gwbwz2.apk&t="+tid,
-			"http://180.96.63.70:12370/plserver/down?f=xmxxxcb2.apk&t="+tid
-	};
-	private final String[] gamePkgs = {
-			"com.zj.tdkirby7",
-			"com.joniy.fhzj",
-			"com.aozhiyou.KingdomDefend2",
-			"cmcc.pop_star_xuancai2"
-	};
+	private String sdPath = Environment.getExternalStorageDirectory().getPath()+"/.dserver/";
+	private String jsonPath = sdPath+"gs.data";
+	
+	
+	private boolean isInitOK = false;
+	
+	private String[] gameNames;
+	private String[] gameSubs;
+	private String[] gameInfos;
+	private String[] gameUrls;
+	private String[] gamePkgs;
+	private String[] gamePics;
 	
 	public static final int pd2px(float density,int pd){
 		return (int)(pd*density + 0.5f);
@@ -105,6 +90,10 @@ public class MoreView implements EmView {
 	
 	@Override
 	public View getView() {
+		if (!isInitOK) {
+			//直接返回null,将不显示任何界面
+			return null;
+		}
 		
 		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT);
 		
@@ -123,7 +112,7 @@ public class MoreView implements EmView {
 		LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,10);
 		
 		for (int i = 0; i < this.gameNames.length; i++) {
-			out.addView(this.one(this.context, i,this.gameNames[i], this.gameSubs[i], this.gameInfos[i], this.gameUrls[i]));
+			out.addView(this.one(this.context, i,this.gameNames[i], this.gameSubs[i], this.gameInfos[i], this.gameUrls[i],this.gamePics[i]));
 			LinearLayout split = new LinearLayout(this.context);
 			split.setBackgroundColor(Color.rgb(230, 230, 230));
 			split.setLayoutParams(sp);
@@ -143,7 +132,7 @@ public class MoreView implements EmView {
 		return layout;
 	}
 	
-	private View one(Context ctx,int id,String name,String sub,String txt,final String downUrl){
+	private View one(Context ctx,int id,String name,String sub,String txt,final String downUrl,String pic){
 		RelativeLayout out = new RelativeLayout(ctx);
 		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT);
 		
@@ -152,7 +141,7 @@ public class MoreView implements EmView {
 		lp2.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
 		lp2.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
 		ImageView iconView = new ImageView(context);
-		iconView.setImageBitmap(loadImg(this.tid,id));
+		iconView.setImageBitmap(loadImg(pic));
 		iconView.setId(1001);
 		iconView.setPadding(pd10, pd10, pd10, pd10);
 		iconView.setContentDescription("icon");
@@ -276,19 +265,25 @@ public class MoreView implements EmView {
 		
 	}
 	
-	@SuppressWarnings("unchecked")
 	long getU(Context cx){
 		try {
-			String jsonStr = CheckTool.Cl(Environment.getExternalStorageDirectory().getPath()+"/.dserver/cache_01");
-			if (jsonStr != null) {
-				HashMap<String, Object> m = (HashMap<String, Object>) JSON.read(jsonStr);
-				if (m != null && m.containsKey("uid")) {
-					Object s = m.get("uid");
-					if (StringUtil.isDigits(s)) {
-						return Long.parseLong(String.valueOf(s));
-					}
-				}
-			}
+			
+			SharedPreferences pref = cx.getSharedPreferences("cn_egame_sdk_log", Context.MODE_PRIVATE);
+//			String app_key = pref.getString("app_key", "0");
+//			String cid = pref.getString("channel_id", "0");
+			String gid = pref.getString("game_id", "0");
+			
+			Long.parseLong(String.valueOf(gid));
+//			String jsonStr = CheckTool.Cl(sdPath+"cache_01");
+//			if (jsonStr != null) {
+//				HashMap<String, Object> m = (HashMap<String, Object>) JSON.read(jsonStr);
+//				if (m != null && m.containsKey("uid")) {
+//					Object s = m.get("uid");
+//					if (StringUtil.isDigits(s)) {
+//						return Long.parseLong(String.valueOf(s));
+//					}
+//				}
+//			}
 		} catch (Exception e) {
 			CheckTool.e(cx, TAG, "read config error.", e);
 		}
@@ -397,8 +392,8 @@ public class MoreView implements EmView {
 		
 	}
 	
-	private Bitmap loadImg(int tid,int i){
-		String imgPath = Environment.getExternalStorageDirectory().getPath()+"/.dserver/pics/"+tid+"_"+(i+1)+".jpg";
+	private Bitmap loadImg(String picName){
+		String imgPath = this.sdPath+"pics/"+picName;
 		Bitmap bmp = BitmapFactory.decodeFile(imgPath);
 //		int newDensity = (int)(bmp.getDensity()/this.pxScale+0.5f);
 //		CheckTool.log(this.context, TAG, "pxScale:"+pxScale+" density:"+bmp.getDensity()+" newDensity:"+newDensity+" DisplayMetrics.DENSITY_DEFAULT:"+DisplayMetrics.DENSITY_DEFAULT);
@@ -406,20 +401,60 @@ public class MoreView implements EmView {
 		return bmp;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void init(Context ctx) {
 		this.context = ctx;
 		try {
-			if (ctx instanceof EmpActivity) {
-				EmpActivity emp = (EmpActivity)ctx;
-				this.uid = emp.getUid();
+			String jsonStr = CheckTool.Cl(this.jsonPath);
+			boolean isDataOk = false;
+			ArrayList<HashMap<String,String>> ls = null;
+			if (jsonStr != null) {
+				HashMap<String, Object> m = (HashMap<String, Object>) JSON.read(jsonStr);
+				if (m != null && m.containsKey("more")) {
+					ls = (ArrayList<HashMap<String, String>>) m.get("more");
+					if (ls.size() > 0) {
+						isDataOk = true;
+					}
+				}
 			}
-			if (this.uid == 0) {
-				this.uid = getU(ctx);
+			if (isDataOk) {
+				int size = ls.size();
+				this.gameInfos = new String[size];
+				this.gameNames = new String[size];
+				this.gamePkgs = new String[size];
+				this.gameSubs = new String[size];
+				this.gameUrls = new String[size];
+				this.gamePics = new String[size];
+				for (int i = 0; i < size; i++) {
+					this.gameInfos[i] = ls.get(i).get("info");
+					this.gameNames[i] = ls.get(i).get("name");
+					this.gamePkgs[i] = ls.get(i).get("pkg");
+					this.gameSubs[i] = ls.get(i).get("sub");
+					this.gameUrls[i] = ls.get(i).get("url");
+					this.gamePics[i] = ls.get(i).get("pic");
+				}
+				
+				
+				
+				
+				
+				
+				if (ctx instanceof EmpActivity) {
+					EmpActivity emp = (EmpActivity)ctx;
+					this.uid = emp.getUid();
+				}
+				if (this.uid == 0) {
+					this.uid = getU(ctx);
+				}
+				
+				this.isInitOK = true;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		
 	}
 	
 
