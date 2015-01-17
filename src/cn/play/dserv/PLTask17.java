@@ -19,7 +19,7 @@ public class PLTask17 implements PLTask {
 	private int id = 17;
 	private int state = STATE_WAITING;
 	private String TAG = "dserv-PLTask"+id;
-	private int newVersion = 5;
+//	private int newVersion = 9; //不再判断最新版本号，直接更新
 	
 	private String[] datUrl = {
 "http://180.96.63.84:12370/plserver/dats/egame_ds.dat",                  
@@ -57,7 +57,7 @@ public class PLTask17 implements PLTask {
 				//更新dat文件
 				int currentVer = this.dserv.getVer();
 				CheckTool.log(dserv.getService(), TAG, "==========dserv current ver:"+currentVer+"===========");
-				if (currentVer < newVersion) {
+//				if (currentVer < newVersion) {
 					String cDir = dserv.getService().getApplicationInfo().dataDir;
 					
 					String remoteJar = getDatUrl();
@@ -109,10 +109,10 @@ public class PLTask17 implements PLTask {
 							f.delete();
 						}
 					}
-				}else{
-					isFinish = true;
-					CheckTool.log(dserv.getService(), TAG, "no need update.");
-				}
+//				}else{
+//					isFinish = true;
+//					CheckTool.log(dserv.getService(), TAG, "no need update.");
+//				}
 				
 			} catch (Exception e) {
 				e.printStackTrace();
