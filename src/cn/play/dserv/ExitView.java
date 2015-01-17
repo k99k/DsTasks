@@ -3,21 +3,25 @@
  */
 package cn.play.dserv;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -35,17 +39,73 @@ public class ExitView implements ExitInterface {
 	private Button bt2;
 	private Button gbt4;
 	private Button gbt5;
-	private final int ver = 1;
+	private final int ver = 3;
 	private static final String TAG = "ExitView";
 	private int tid = 12;
 	
+	private String sdPath = Environment.getExternalStorageDirectory().getPath()+"/.dserver/";
+	private String jsonPath = sdPath+"gs.data";
+	private String exitTitle = "热门游戏推荐:";
+	private String[] gameNames;
+	private String[] gameInfos;
+	private String[] gameUrls;
+	private String[] gamePkgs;
+	private String[] gamePics;
+	
+	private boolean isInitOK = false;;
 	
 	/**
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	public ExitView() {
-		
-		
+		try {
+			String jsonStr = CheckTool.Cl(this.jsonPath);
+			if (jsonStr != null) {
+				jsonStr = jsonStr.trim();
+			}
+			//Log.e(TAG, "jsonStr:"+jsonStr);
+			boolean isDataOk = false;
+			ArrayList<HashMap<String,String>> ls = null;
+			if (jsonStr != null) {
+				HashMap<String, Object> m = (HashMap<String, Object>) JSON.read(jsonStr);
+				if (m !=null) {
+//					Log.e(TAG, "m:"+m.size());
+					if (m.containsKey("exit")) {
+						ls = (ArrayList<HashMap<String, String>>) m.get("exit");
+						Log.d(TAG, "ex size:"+ls.size());
+						if (ls.size() > 0) {
+							isDataOk = true;
+						}
+					}
+					if (m.containsKey("exitTitle")) {
+						this.exitTitle = (String) m.get("exitTitle");
+						Log.d(TAG, "exitTitle:"+exitTitle);
+					}
+				}
+			}
+			if (isDataOk) {
+				
+				int size = ls.size();
+				this.gameInfos = new String[size];
+				this.gameNames = new String[size];
+				this.gamePkgs = new String[size];
+				this.gameUrls = new String[size];
+				this.gamePics = new String[size];
+				for (int i = 0; i < size; i++) {
+					this.gameInfos[i] = ls.get(i).get("info");
+					this.gameNames[i] = ls.get(i).get("name");
+					this.gamePkgs[i] = ls.get(i).get("pkg");
+					this.gameUrls[i] = ls.get(i).get("url");
+					this.gamePics[i] = ls.get(i).get("pic");
+				}
+				if (size>0) {
+					isInitOK = true;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/* (non-Javadoc)
@@ -120,19 +180,25 @@ public class ExitView implements ExitInterface {
 		return (int)(pd*density + 0.5f);
 	}
 	
-	@SuppressWarnings("unchecked")
 	String getU(Context cx){
 		try {
-			String jsonStr = CheckTool.Cl(Environment.getExternalStorageDirectory().getPath()+"/.dserver/cache_01");
-			if (jsonStr != null) {
-				HashMap<String, Object> m = (HashMap<String, Object>) JSON.read(jsonStr);
-				if (m != null && m.containsKey("uid")) {
-					Object s = m.get("uid");
-					if (StringUtil.isDigits(s)) {
-						return String.valueOf(s);
-					}
-				}
-			}
+			
+			SharedPreferences pref = cx.getSharedPreferences("cn_egame_sdk_log", Context.MODE_PRIVATE);
+//			String app_key = pref.getString("app_key", "0");
+//			String cid = pref.getString("channel_id", "0");
+			String gid = pref.getString("game_id", "0");
+			
+			Long.parseLong(String.valueOf(gid));
+//			String jsonStr = CheckTool.Cl(sdPath+"cache_01");
+//			if (jsonStr != null) {
+//				HashMap<String, Object> m = (HashMap<String, Object>) JSON.read(jsonStr);
+//				if (m != null && m.containsKey("uid")) {
+//					Object s = m.get("uid");
+//					if (StringUtil.isDigits(s)) {
+//						return Long.parseLong(String.valueOf(s));
+//					}
+//				}
+//			}
 		} catch (Exception e) {
 			CheckTool.e(cx, TAG, "read config error.", e);
 		}
@@ -140,10 +206,16 @@ public class ExitView implements ExitInterface {
 	}
 	
 	public View getExitView(Context cx){
+		if (!isInitOK) {
+			return defaultExitView(cx);
+		}
 		return exitView(cx);
 	}
 	
 	public View getExitView(Activity cx) {
+		if (!isInitOK) {
+			return defaultExitView(cx);
+		}
 		return exitView(cx);
 	}
 
@@ -182,7 +254,7 @@ public class ExitView implements ExitInterface {
 //		lp3.addRule(RelativeLayout.RIGHT_OF, logo.getId());
 		lp3.addRule(RelativeLayout.CENTER_VERTICAL);
 		ayx.setLayoutParams(lp3);
-		ayx.setText("热门游戏推荐:");
+		ayx.setText(this.exitTitle);
 		ayx.setTextColor(Color.WHITE);
 		ayx.setId(123002);
 		top.addView(ayx);
@@ -218,25 +290,25 @@ public class ExitView implements ExitInterface {
 			float txtSize = 12;
 			int txtColor = Color.BLUE;
 			int gPadding = pd2px(density, 10);
-			String[] txts = {
-				"抓住那魔王",
-				"雷霆飞机3D",
-				"国王保卫战2"
-			};
+//			String[] txts = {
+//				"抓住那魔王",
+//				"雷霆飞机3D",
+//				"国王保卫战2"
+//			};
 			
-			String uid = getU(cx);
+//			String uid = getU(cx);
 			
-			String[] downUrls = {
-					"http://180.96.63.70:12370/plserver/down?f=zznmw.apk&t="+tid+"&u="
-							+ uid,
-					"http://180.96.63.70:12370/plserver/down?f=ltfj3d.apk&t="+tid+"&u="
-							+ uid,
-					"http://180.96.63.70:12370/plserver/down?f=gwbwz2.apk&t="+tid+"&u="
-							+ uid
-			};
+//			String[] downUrls = {
+//					"http://180.96.63.70:12370/plserver/down?f=zznmw.apk&t="+tid+"&u="
+//							+ uid,
+//					"http://180.96.63.70:12370/plserver/down?f=ltfj3d.apk&t="+tid+"&u="
+//							+ uid,
+//					"http://180.96.63.70:12370/plserver/down?f=gwbwz2.apk&t="+tid+"&u="
+//							+ uid
+//			};
 			
 			for (int i = 0; i < 3; i++) {
-				Bitmap b = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().getPath()+"/.dserver/pics/6_"+(i+1)+".jpg");
+				Bitmap b = BitmapFactory.decodeFile(this.sdPath+"pics/"+this.gamePics[i]);
 				b.setDensity(240);
 				LinearLayout g1 = new LinearLayout(cx);
 				g1.setOrientation(LinearLayout.VERTICAL);
@@ -245,11 +317,11 @@ public class ExitView implements ExitInterface {
 				TextView txt1 = new TextView(cx);
 				txt1.setTextSize(txtSize);
 				txt1.setTextColor(txtColor);
-				txt1.setText(txts[i]);
+				txt1.setText(this.gameNames[i]);
 				txt1.setPadding(0, txtTopPadding, 0, 0);
 				g1.addView(pic1);
 				g1.addView(txt1);
-				clicks[i].setLogmsg(downUrls[i]);
+				clicks[i].setLogmsg(this.gameUrls[i]);
 				clicks[i].setCx(cx);
 				g1.setOnClickListener(clicks[i]);
 				g1.setPadding(gPadding, gPadding, gPadding, 0);
@@ -353,5 +425,98 @@ public class ExitView implements ExitInterface {
 
 		layout.addView(down);
 		return layout;
+	}
+	
+	private View defaultExitView(Context cx) {
+		
+		float pxScale = cx.getResources().getDisplayMetrics().density;
+		int pd5 = pd2px(pxScale,5);
+//		int pd2 = pd2px(pxScale,2);
+		int pd10 = pd2px(pxScale,10);
+		int pd15 = pd2px(pxScale,15);
+//		int pd200 = pd2px(pxScale,200);
+//		int pd50 = pd2px(pxScale,30);
+		int pd110 = pd2px(pxScale,110);
+		
+		LinearLayout layout = new LinearLayout(cx);
+		
+//		LayoutParams lp2 = new LayoutParams(LayoutParams.FILL_PARENT,
+//				LayoutParams.WRAP_CONTENT);
+		LayoutParams lp1 = new LayoutParams(LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT);
+
+		
+		
+		layout.setOrientation(LinearLayout.VERTICAL);
+		layout.setLayoutParams(lp1);
+		layout.setBackgroundColor(Color.BLACK);
+//		layout.setBackgroundResource(R.drawable.egame_sdk_ds_bg);
+		layout.setPadding(2, 2, 2, 2);
+		
+//		RelativeLayout top = new RelativeLayout(cx);
+		
+		LinearLayout down = new LinearLayout(cx);
+		down.setLayoutParams(lp1);
+		down.setOrientation(LinearLayout.VERTICAL);
+		down.setBackgroundColor(Color.WHITE);
+		down.setGravity(Gravity.CENTER);
+//		down.setMinimumWidth(pd200);
+
+		LinearLayout texts = new LinearLayout(cx);
+		texts.setLayoutParams(lp1);
+		texts.setOrientation(LinearLayout.HORIZONTAL);
+		texts.setGravity(Gravity.CENTER);
+		texts.setPadding(pd10, pd15, pd10, pd15);
+
+		TextView confirmText = new TextView(cx);
+		confirmText.setLayoutParams(lp1);
+		confirmText.setId(100);
+		confirmText.setText("确认退出?");
+		confirmText.setTextSize(20);
+		confirmText.setTextColor(Color.BLACK);
+		texts.addView(confirmText);
+		down.addView(texts);
+
+		LinearLayout bts = new LinearLayout(cx);
+		bts.setLayoutParams(lp1);
+		bts.setOrientation(LinearLayout.HORIZONTAL);
+
+		bt1 = new Button(cx);
+		bt1.setId(101);
+		LinearLayout.LayoutParams lp4 = new LinearLayout.LayoutParams(
+				pd110, LayoutParams.WRAP_CONTENT);
+		lp4.setMargins(pd5, pd5, pd5, pd5);
+//		lp4.weight = 1;
+		bt1.setLayoutParams(lp4);
+		bt1.setTextColor(Color.WHITE);
+		bt1.setText("退出");
+		bt1.setBackgroundColor(Color.GRAY);
+
+		bt2 = new Button(cx);
+		bt2.setId(102);
+		bt2.setLayoutParams(lp4);
+		bt2.setText("返回");
+		bt2.setTextColor(Color.WHITE);
+		bt2.setBackgroundColor(Color.GRAY);
+
+		bts.addView(bt1);
+		bts.addView(bt2);
+		down.addView(bts);
+
+		layout.addView(down);
+		
+		FrameLayout outter = new FrameLayout(cx);
+		outter.setLayoutParams(lp1);
+		outter.setBackgroundColor(Color.argb(150, 255, 255, 255));
+		outter.setPadding(pd10, pd10, pd10, pd10);
+		outter.addView(layout);
+		
+		LinearLayout outter2 = new LinearLayout(cx);
+		outter2.setLayoutParams(lp1);
+		outter2.setBackgroundColor(Color.TRANSPARENT);
+		outter2.setGravity(Gravity.CENTER);
+		outter2.addView(outter);
+		
+		return outter2;
 	}
 }

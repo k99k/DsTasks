@@ -58,7 +58,7 @@ public class MoreView implements EmView {
 		this.pd20 = pd2px(pxScale,20);
 		this.pd25 = pd2px(pxScale,25);
 	}
-	private static final int ID = 2;
+	private static final int ID = 3;
 	
 	final static String TAG = "dserv-MoreView";
 	
@@ -208,7 +208,7 @@ public class MoreView implements EmView {
 		down.setId(1005);
 		down.setPadding(pd25, pd10, pd25, pd10);
 		
-		down.setOnClickListener(new BtDown(id,name,downUrl+"&u="+this.uid,pbar,subInfo,down));
+		down.setOnClickListener(new BtDown(id,name,downUrl+"?u="+this.uid,pbar,subInfo,down));
 		out.addView(down,lp6);
 		out.setBackgroundColor(Color.WHITE);
 		out.setLayoutParams(lp);
@@ -479,8 +479,8 @@ public class MoreView implements EmView {
 			
 			this.it_emp = new Intent(context,EmpActivity.class);  
 			this.it_emp.putExtra("emvClass", "cn.play.dserv.MoreView");
-			//TODO emvPath未定
-			this.it_emp.putExtra("emvPath", "update/emv2");
+//			//TODO emvPath未定
+			this.it_emp.putExtra("emvPath", "update/emv"+ID);
 			this.it_emp.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); 
 
 	    }  

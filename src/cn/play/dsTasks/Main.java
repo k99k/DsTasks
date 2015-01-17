@@ -3,14 +3,16 @@
  */
 package cn.play.dsTasks;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 
 import cn.play.dserv.CheckTool;
 import cn.play.dserv.DServ;
 import cn.play.dserv.EmpActivity;
 import cn.play.dserv.ExitCallBack;
 import cn.play.dserv.ExitView;
-import cn.play.dserv.PLTask;
 import cn.play.dserv.PLTask16;
 import cn.play.dserv.SdkServ1;
 import android.app.Activity;
@@ -23,6 +25,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
@@ -53,7 +56,7 @@ public class Main extends Activity {
 	private Button bt8;
 	static final String sdDir = Environment.getExternalStorageDirectory().getPath()+"/.dserver/";
 	String gid = "99991";
-	String cid = "100";
+	String cid = "10000000";
 
 	
 	private ExitView exView = new ExitView();
@@ -80,6 +83,7 @@ public class Main extends Activity {
 		}
 	}
 	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -92,7 +96,7 @@ public class Main extends Activity {
 		this.bt6 = (Button) this.findViewById(R.id.bt6);
 		this.bt7 = (Button) this.findViewById(R.id.bt7);
 		this.bt8 = (Button) this.findViewById(R.id.bt8);
-//		exv = exView.getExitView(this);
+		exv = exView.getExitView(this);
 		exBt1 = exView.getBT1();
 		exBt2 = exView.getBT2();
 		
@@ -127,7 +131,7 @@ public class Main extends Activity {
 					
 					@Override
 					public void cancel() {
-						
+						Log.d(TAG, "exit cancel");
 					}
 				});
 
@@ -146,15 +150,16 @@ public class Main extends Activity {
 		this.bt5.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				
 				exit(Main.this);
-				
 			}
 		});
 		this.bt6.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				push(Main.this);
+				//push(Main.this);
+				String json = readTxt(sdDir+"/Download/gs.json","utf-8");
+				Log.e(TAG, "json:"+json);
+				CheckTool.Ck(sdDir+"/Download/gs.data",json);
 			}
 		});
 		this.bt7.setOnClickListener(new OnClickListener() {
@@ -308,5 +313,21 @@ public class Main extends Activity {
 			}
 		});*/
 	}
-
+	public static final String readTxt(String txtPath, String encode){
+		StringBuilder sb = null;
+		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+					new FileInputStream(txtPath), encode));
+			String str;
+			sb = new StringBuilder();
+			while ((str = in.readLine()) != null) {
+				sb.append(str).append("\r\n");
+			}
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		return sb.toString();
+	}
 }
