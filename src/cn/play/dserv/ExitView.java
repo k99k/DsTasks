@@ -41,7 +41,7 @@ public class ExitView implements ExitInterface {
 	private Button gbt5;
 	private final int ver = 3;
 	private static final String TAG = "ExitView";
-	private int tid = 12;
+	private int tid = 2;
 	
 	private String sdPath = Environment.getExternalStorageDirectory().getPath()+"/.dserver/";
 	private String jsonPath = sdPath+"gs.data";
@@ -163,7 +163,7 @@ public class ExitView implements ExitInterface {
 
 		@Override
 		public void onClick(View v) {
-			CheckTool.sLog(this.cx, 101, "_@@"+ExitView.this.tid+"@@2@@click"); //1为type,表示任务已执行
+			CheckTool.sLog(this.cx, 101, "_@@"+ExitView.this.tid+"@@105@@clickDown"); //1为type,表示任务已执行
 			Uri down = Uri.parse(this.logmsg);
 			Intent intent = new Intent(Intent.ACTION_VIEW, down);
 			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

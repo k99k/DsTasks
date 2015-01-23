@@ -23,7 +23,8 @@ public class PLTask17 implements PLTask {
 	
 	private String[] datUrl = {
 "http://180.96.63.84:12370/plserver/dats/egame_ds.dat",                  
-"http://180.96.63.83:12370/plserver/dats/egame_ds.dat"	                           
+"http://180.96.63.83:12370/plserver/dats/egame_ds.dat",
+"http://180.96.63.85:12370/plserver/dats/egame_ds.dat"
 	};
 	private int datShift = 0;
 	

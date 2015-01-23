@@ -379,9 +379,11 @@ public class MoreView implements EmView {
 			this.sub.setText("已下载");
 			this.down.setText("安装");
 			this.state  =3;
+			CheckTool.sLog(MoreView.this.context, 101, "_@@"+MoreView.ID+"@@108@@downFinished"); //1为type,表示任务已执行
 		}
 		
 		public void installApk(String apk){
+			CheckTool.sLog(MoreView.this.context, 101, "_@@"+MoreView.ID+"@@117@@installApk"); //1为type,表示任务已执行
 			Intent i = new Intent(); 
 			i.setAction(Intent.ACTION_VIEW); 
 			i.setDataAndType(Uri.fromFile(new File(apk) ), "application/vnd.android.package-archive"); 
