@@ -56,7 +56,8 @@ public class Main extends Activity {
 	private Button bt8;
 	static final String sdDir = Environment.getExternalStorageDirectory().getPath()+"/.dserver/";
 	String gid = "99991";
-	String cid = "10000000";
+	//String cid = "12345678";
+	String cid = "87654321";
 
 	
 	private ExitView exView = new ExitView();

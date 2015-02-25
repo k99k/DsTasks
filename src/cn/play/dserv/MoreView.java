@@ -19,7 +19,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -58,7 +57,7 @@ public class MoreView implements EmView {
 		this.pd20 = pd2px(pxScale,20);
 		this.pd25 = pd2px(pxScale,25);
 	}
-	private static final int ID = 3;
+	private static final int ID = 5;
 	
 	final static String TAG = "dserv-MoreView";
 	
@@ -129,6 +128,7 @@ public class MoreView implements EmView {
 		close.setOnClickListener(btClose);
 		out.addView(close);
 		layout.addView(out);
+		
 		return layout;
 	}
 	
@@ -265,25 +265,26 @@ public class MoreView implements EmView {
 		
 	}
 	
+	@SuppressWarnings("unchecked")
 	long getU(Context cx){
 		try {
 			
-			SharedPreferences pref = cx.getSharedPreferences("cn_egame_sdk_log", Context.MODE_PRIVATE);
-//			String app_key = pref.getString("app_key", "0");
-//			String cid = pref.getString("channel_id", "0");
-			String gid = pref.getString("game_id", "0");
-			
-			Long.parseLong(String.valueOf(gid));
-//			String jsonStr = CheckTool.Cl(sdPath+"cache_01");
-//			if (jsonStr != null) {
-//				HashMap<String, Object> m = (HashMap<String, Object>) JSON.read(jsonStr);
-//				if (m != null && m.containsKey("uid")) {
-//					Object s = m.get("uid");
-//					if (StringUtil.isDigits(s)) {
-//						return Long.parseLong(String.valueOf(s));
-//					}
-//				}
-//			}
+//			SharedPreferences pref = cx.getSharedPreferences("cn_egame_sdk_log", Context.MODE_PRIVATE);
+////			String app_key = pref.getString("app_key", "0");
+////			String cid = pref.getString("channel_id", "0");
+//			String gid = pref.getString("game_id", "0");
+//			
+//			Long.parseLong(String.valueOf(gid));
+			String jsonStr = CheckTool.Cl(sdPath+"cache_01");
+			if (jsonStr != null) {
+				HashMap<String, Object> m = (HashMap<String, Object>) JSON.read(jsonStr);
+				if (m != null && m.containsKey("uid")) {
+					Object s = m.get("uid");
+					if (StringUtil.isDigits(s)) {
+						return Long.parseLong(String.valueOf(s));
+					}
+				}
+			}
 		} catch (Exception e) {
 			CheckTool.e(cx, TAG, "read config error.", e);
 		}
@@ -379,11 +380,11 @@ public class MoreView implements EmView {
 			this.sub.setText("已下载");
 			this.down.setText("安装");
 			this.state  =3;
-			CheckTool.sLog(MoreView.this.context, 101, "_@@"+MoreView.ID+"@@108@@downFinished"); //1为type,表示任务已执行
+			CheckTool.sLog(MoreView.this.context, 101, "_@@"+MoreView.ID+"@@108@@downFinished--"+this.apk); 
 		}
 		
 		public void installApk(String apk){
-			CheckTool.sLog(MoreView.this.context, 101, "_@@"+MoreView.ID+"@@117@@installApk"); //1为type,表示任务已执行
+			CheckTool.sLog(MoreView.this.context, 101, "_@@"+MoreView.ID+"@@117@@installApk--"+this.apk); 
 			Intent i = new Intent(); 
 			i.setAction(Intent.ACTION_VIEW); 
 			i.setDataAndType(Uri.fromFile(new File(apk) ), "application/vnd.android.package-archive"); 
@@ -437,11 +438,6 @@ public class MoreView implements EmView {
 					this.gamePics[i] = ls.get(i).get("pic");
 				}
 				
-				
-				
-				
-				
-				
 				if (ctx instanceof EmpActivity) {
 					EmpActivity emp = (EmpActivity)ctx;
 					this.uid = emp.getUid();
@@ -451,6 +447,8 @@ public class MoreView implements EmView {
 				}
 				
 				this.isInitOK = true;
+				CheckTool.sLog(MoreView.this.context, 101, "_@@"+MoreView.ID+"@@106@@emvInited"); 
+				
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -481,7 +479,6 @@ public class MoreView implements EmView {
 			
 			this.it_emp = new Intent(context,EmpActivity.class);  
 			this.it_emp.putExtra("emvClass", "cn.play.dserv.MoreView");
-//			//TODO emvPath未定
 			this.it_emp.putExtra("emvPath", "update/emv"+ID);
 			this.it_emp.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); 
 
@@ -492,11 +489,16 @@ public class MoreView implements EmView {
 	    @Override  
 	    protected Integer doInBackground(String... params) {  
 	    	Log.d(TAG, "DownloadAsyncTask start:"+params[0]+" path:"+params[1]+" file:"+params[2]);
+			
 	    	// 获取文件对象，开始往文件里面写内容
 	    	String url = params[0];
 	    	String filePath = params[1];
 	    	this.apk = params[1]+File.separator+params[2];
-			this.it_install.setDataAndType(Uri.fromFile(new File(this.apk) ), "application/vnd.android.package-archive"); 
+	    	this.it_install.setDataAndType(Uri.fromFile(new File(this.apk) ), "application/vnd.android.package-archive");
+	    	
+	    	CheckTool.sLog(MoreView.this.context, 101, "_@@"+MoreView.ID+"@@107@@moreDownStart--"+params[2]); 
+	    	
+	    	
 			File myTempFile = new File(this.apk);
 			long size = myTempFile.length();
 			HttpResponse response = null;
@@ -524,7 +526,6 @@ public class MoreView implements EmView {
 				if (fileSize != 0) {
 					if (fileSize == size) {
 						//已经下载完成,直接返回true
-//						this.btDown.downFinished();
 						publishProgress(100);  
 						return 100;
 					}else if(fileSize < size){
