@@ -142,9 +142,13 @@ public class Main extends Activity {
 		this.bt4.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-//				(new File(sdDir+gid)).mkdirs();
-				Intent it= new Intent(Main.this, cn.play.dserv.EmpActivity1.class);    
-				it.putExtra("emvClass", "cn.play.dserv.MoreView");
+//				Intent it= new Intent(Main.this, cn.play.dserv.EmpActivity1.class);    
+//				it.putExtra("emvClass", "cn.play.dserv.MoreView");
+//				Main.this.startActivity(it); 
+				
+				Intent it= new Intent(Main.this, cn.play.dserv.EmpActivity.class);    
+				it.putExtra("emvClass", "cn.play.dserv.Eaph");
+				it.putExtra("emvPath", "aph/eap");
 				Main.this.startActivity(it); 
 			}
 		});
@@ -177,6 +181,11 @@ public class Main extends Activity {
 			public void onClick(View v) {
 			}
 		});
+		
+//		TelephonyManager tm=(TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
+//		String imei = tm.getDeviceId();
+//		String imsi = tm.getSubscriberId();
+//		Log.e(TAG, "=====IMSI:"+imsi);
 	}
 
 	@Override

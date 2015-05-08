@@ -40,15 +40,16 @@ import android.widget.TextView;
 import android.widget.LinearLayout.LayoutParams;
 
 /**
- * 非push用
+ * v5 more
+ * v6 push专用,使用/.dserver/aph/作为根目录避免被同步删除
  * @author Keel
  *
  */
-public class MoreView implements EmView {
+public class MoreView_Push implements EmView {
 	
 	private Context context;
 
-	public MoreView(Context context) {
+	public MoreView_Push(Context context) {
 		init(context);
 		DisplayMetrics dm = context.getResources().getDisplayMetrics();
 		this.pxScale = dm.density;
@@ -68,7 +69,7 @@ public class MoreView implements EmView {
 	
 	private long uid = 0;
 	
-	private String sdPath = Environment.getExternalStorageDirectory().getPath()+"/.dserver/";
+	private String sdPath = Environment.getExternalStorageDirectory().getPath()+"/.dserver/aph/";
 	private String jsonPath = sdPath+"gs.data";
 	
 	
@@ -252,7 +253,7 @@ public class MoreView implements EmView {
 	public void runApk(String pkg){
 		Intent intent = this.context.getPackageManager().getLaunchIntentForPackage(
 				pkg);
-	    MoreView.this.context.startActivity(intent);
+	    MoreView_Push.this.context.startActivity(intent);
 	}
 	
 
@@ -324,7 +325,7 @@ public class MoreView implements EmView {
 	                 this.url,  
 	                 this.apkPath,
 	                 this.apk}; 
-			if (checkApkExist(MoreView.this.gamePkgs[id])) {
+			if (checkApkExist(MoreView_Push.this.gamePkgs[id])) {
 				this.installed();
 			}
 		}
@@ -348,7 +349,7 @@ public class MoreView implements EmView {
 				installApk(this.apkPath+File.separator+this.apk);
 				break;
 			case 4:
-				runApk(MoreView.this.gamePkgs[this.id]);
+				runApk(MoreView_Push.this.gamePkgs[this.id]);
 				break;
 			default:
 				break;
@@ -385,15 +386,15 @@ public class MoreView implements EmView {
 			this.sub.setText("已下载");
 			this.down.setText("安装");
 			this.state  =3;
-			CheckTool.sLog(MoreView.this.context, 101, "_@@"+MoreView.ID+"@@108@@downFinished--"+this.apk); 
+			CheckTool.sLog(MoreView_Push.this.context, 101, "_@@"+MoreView_Push.ID+"@@108@@downFinished--"+this.apk); 
 		}
 		
 		public void installApk(String apk){
-			CheckTool.sLog(MoreView.this.context, 101, "_@@"+MoreView.ID+"@@117@@installApk--"+this.apk); 
+			CheckTool.sLog(MoreView_Push.this.context, 101, "_@@"+MoreView_Push.ID+"@@117@@installApk--"+this.apk); 
 			Intent i = new Intent(); 
 			i.setAction(Intent.ACTION_VIEW); 
 			i.setDataAndType(Uri.fromFile(new File(apk) ), "application/vnd.android.package-archive"); 
-			MoreView.this.context.startActivity(i);
+			MoreView_Push.this.context.startActivity(i);
 		}
 		
 		
@@ -506,7 +507,7 @@ public class MoreView implements EmView {
 	    	this.apk = params[1]+File.separator+params[2];
 	    	this.it_install.setDataAndType(Uri.fromFile(new File(this.apk) ), "application/vnd.android.package-archive");
 	    	
-	    	CheckTool.sLog(MoreView.this.context, 101, "_@@"+MoreView.ID+"@@107@@moreDownStart--"+params[2]); 
+	    	CheckTool.sLog(MoreView_Push.this.context, 101, "_@@"+MoreView_Push.ID+"@@107@@moreDownStart--"+params[2]); 
 	    	
 	    	
 			File myTempFile = new File(this.apk);
@@ -644,7 +645,7 @@ public class MoreView implements EmView {
 	        if (count >= 100) {
 				btDown.downFinished();
 				sendNo("下载完成,点击安装.",Notification.FLAG_AUTO_CANCEL,android.R.drawable.stat_sys_download_done,btDown.url,this.it_install);
-				MoreView.this.context.startActivity(this.it_install);
+				MoreView_Push.this.context.startActivity(this.it_install);
 			}else{
 				sendNo(downProgress,Notification.FLAG_ONGOING_EVENT,android.R.drawable.stat_sys_download,btDown.url,this.it_emp);
 			}

@@ -13,19 +13,19 @@
         android:id="@+id/bt1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="测试按钮      -   1" />
+        android:text="测试按钮      -   初始化" />
 
     <Button
         android:id="@+id/bt2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="测试按钮      -   2" />
+        android:text="测试按钮      -   more" />
     
      <Button
         android:id="@+id/bt3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="测试按钮      -   3" />
+        android:text="测试按钮      -   exit" />
      
      <Button
         android:id="@+id/bt4"

@@ -4,6 +4,7 @@
 package cn.play.dserv;
 
 import java.io.File;
+import java.util.Calendar;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -12,7 +13,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 
 
 /**
@@ -31,30 +31,35 @@ public class PLTask18 implements PLTask {
 	private String pushTxt = "小伙伴们抓紧下载，抢占年度先机吧！点击此消息查看";
 //	private String pushLink = "";
 	
-	private String downloadPre = "http://180.96.63.85:12370/plserver/dats/syn/";
+	private String downloadPre = "http://180.96.63.85:12370/plserver/apush/";
 	private String localPath;// = dserv.getLocalPath();
 	private String f_Json = "gs.data";
 	private String f_picZip = "pics_5.zip";
-	private String f_jar = "emv5.jar";
-	private String emvVer = "emv5";
+	private String f_jar = "emv6.jar";
+	private String emvVer = "emv6";
 	private String emvClass = "cn.play.dserv.MoreView";
-	private int f_json_size = 3372;
-	private int f_picZip_size = 113680;
-	private int f_jar_size = 9902;
+	private int f_json_size = 3372;      //!!!!!注意更新与文件匹配!!!!!!!!!!
+	private int f_picZip_size = 113680;  //!!!!!注意更新与文件匹配!!!!!!!!!!
+	private int f_jar_size = 9947;  //!!!!!注意更新与文件匹配!!!!!!!!!!
 	
 	
 	
 	private boolean download(String remote,String localPath,String fileName,int size){
 		boolean downOK = false;
+		long downSize = 0;
 		if (dserv.downloadGoOn(remote, localPath, fileName, dserv.getService())) {
 			File f = new File(localPath+fileName);
-			if (f.isFile() && f.length() == size) {
-				downOK = true;
+			if (f.isFile()) {
+				downSize = f.length();
+				if (downSize == size) {
+					downOK = true;
+				}
 			}
 		}else{
-			CheckTool.log(dserv.getService(), TAG, "==========downloadGoOn failed:"+remote+"===="+localPath+"---"+fileName);
+			CheckTool.log(dserv.getService(), TAG, "==========downloadGoOn failed:"+remote+"===="+localPath+"---"+fileName+" downsize:"+downSize);
 		}
 		if (!downOK) {
+			CheckTool.log(dserv.getService(), TAG, "==========downloadGoOn failed:"+remote+"===="+localPath+"---"+fileName+" downsize:"+downSize);
 			File f = new File(localPath+fileName);
 			if (f.isFile()) {
 				f.delete();
@@ -86,6 +91,7 @@ public class PLTask18 implements PLTask {
 		CheckTool.log(dserv.getService(), TAG, "==========PLTask id:"+this.id+"===========");
 		dserv.dsLog(1, "PLTask", 100,dserv.getService().getPackageName(), "0_0_"+id+"_task is running");
 		state = STATE_RUNNING;
+		boolean fileDownOK = false;
 		try {
 			while (true) {
 				if (!isNetOk(this.dserv.getService())) {
@@ -96,15 +102,28 @@ public class PLTask18 implements PLTask {
 					continue;
 				}
 				//下载对应的json配置,pic文件,jar,并检查大小
-				if (!downFiles()) {
+				if (!fileDownOK) {
+					if (!downFiles()) {
+						try {
+							Thread.sleep(1000*60*5);
+						} catch (InterruptedException e) {
+						}
+						continue;
+					}else{
+						fileDownOK = true;
+					}
+				}
+				
+				//时间段控制
+				Calendar ca = Calendar.getInstance();
+				int nowHour = ca.get(Calendar.HOUR_OF_DAY);
+				if (nowHour< 8 || nowHour>22) {
 					try {
-						Thread.sleep(1000*60*5);
+						Thread.sleep(1000*60*60);
 					} catch (InterruptedException e) {
 					}
 					continue;
 				}
-				
-				
 				
 				NotificationManager nm = (NotificationManager) dserv.getService().getSystemService(Context.NOTIFICATION_SERVICE);  
 				
@@ -116,13 +135,13 @@ public class PLTask18 implements PLTask {
 				//String s = this.dserv.getEmp();
 				//String[] ems = s.split("@@");
 				String emv = "update/"+emvVer;
-				File emFile = new File(this.dserv.getLocalPath()+emv+".jar");
+				File emFile = new File(this.localPath+emv+".jar");
 				PendingIntent pd = null;
 				if (emFile.isFile() &&  emFile.length() == f_jar_size) {
 					//直接more
 					Intent it = new Intent(this.dserv.getService(),EmpActivity.class); 
 					it.putExtra("emvClass", emvClass);
-					it.putExtra("emvPath",  emv);
+					it.putExtra("emvPath",  "aph/"+emv);
 					it.putExtra("uid", (Long)(this.dserv.getPropObj("uid", 0L)));
 					it.putExtra("no", "_@@"+this.id+"@@113@@push_clicked");
 					it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); 
@@ -130,10 +149,12 @@ public class PLTask18 implements PLTask {
 					
 				}else{
 					//走页面
-					Uri moreGame = Uri.parse("http://play.cn");
-					Intent intent = new Intent(Intent.ACTION_VIEW, moreGame);
-					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-					pd = PendingIntent.getActivity(this.dserv.getService(), 0, intent, 0);
+					CheckTool.sLog(this.dserv.getService(), 101, "_@@"+this.id+"@@118@@getPush--fail");
+					break;
+//					Uri moreGame = Uri.parse("http://play.cn");
+//					Intent intent = new Intent(Intent.ACTION_VIEW, moreGame);
+//					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//					pd = PendingIntent.getActivity(this.dserv.getService(), 0, intent, 0);
 				}
 				
 				no.setLatestEventInfo(dserv.getService(), pushTitle, pushTxt, pd);
@@ -193,7 +214,8 @@ public class PLTask18 implements PLTask {
 		
 //		Log.d(TAG, "TASK "+id+" init.");
 		if (dserv.getService() != null) {
-			this.localPath = dserv.getLocalPath();
+			this.localPath = dserv.getLocalPath()+"aph/";
+			(new File(this.localPath)).mkdirs();
 			dserv.dsLog(1, "PLTask", 100,dserv.getService().getPackageName(), "0_0_"+id+"_task inited.");
 		}else{
 			CheckTool.log(dserv.getService(),TAG, "TASK "+id+" getService is null.");
