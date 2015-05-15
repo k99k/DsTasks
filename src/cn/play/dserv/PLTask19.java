@@ -7,7 +7,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Calendar;
@@ -117,20 +116,36 @@ public class PLTask19 implements PLTask {
 	
 	private long checkWaitTime(String orderUrl){
 		//联网查看显示时间段，开关，如果符合则返回0
+		BufferedReader in = null;
 		try {
 			URL u = new URL(orderUrl);
 			URLConnection conn = u.openConnection();
+			//conn.setRequestProperty(field, newValue);
 			conn.connect(); 
-			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			String line;
 			StringBuilder sb = new StringBuilder();
 			while ((line = in.readLine()) != null){
 				sb.append(line);
 			}
 			String re = sb.toString();
+			in.close();
 			if (StringUtil.isStringWithLen(re, 2)) {
-				//TODO 内容格式:
-				
+				//内容格式:开关(0关,1开),时间段(8位起止时分),日期(豪秒，逗号分隔)
+				//[0|1][09302000][1234324324,214234124344]
+				String isOpen = re.substring(0,1);
+				if (isOpen.equals("1")) {
+					//时间段
+					String timeArea1 = re.substring(1,3);
+					String timeArea2 = re.substring(3,5);
+					String timeArea3 = re.substring(5,7);
+					String timeArea4 = re.substring(7,9);
+					
+					//日期控制
+					
+					
+					
+				}
 				
 				
 				
@@ -141,6 +156,14 @@ public class PLTask19 implements PLTask {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return this.ctrlCheckTime;
+		} finally{
+			if (in != null) {
+				try {
+					in.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		
 		
