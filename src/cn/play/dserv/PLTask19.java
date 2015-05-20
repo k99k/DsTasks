@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Calendar;
+import java.util.HashMap;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -114,8 +115,12 @@ public class PLTask19 implements PLTask {
 		}
 	}
 	
+	/**
+	 * 联网查看显示时间段，开关，如果符合则返回0
+	 * @param orderUrl
+	 * @return
+	 */
 	private long checkWaitTime(String orderUrl){
-		//联网查看显示时间段，开关，如果符合则返回0
 		BufferedReader in = null;
 		try {
 			URL u = new URL(orderUrl);
@@ -136,23 +141,32 @@ public class PLTask19 implements PLTask {
 				String isOpen = re.substring(0,1);
 				if (isOpen.equals("1")) {
 					//时间段
-					String timeArea1 = re.substring(1,3);
-					String timeArea2 = re.substring(3,5);
-					String timeArea3 = re.substring(5,7);
-					String timeArea4 = re.substring(7,9);
+					String h1 = re.substring(1,3);
+					String m1 = re.substring(3,5);
+					String h2 = re.substring(5,7);
+					String m2 = re.substring(7,9);
 					
 					//日期控制
+					String[] dateArea = re.substring(9).split(",");
 					
-					
-					
+					Calendar ca = Calendar.getInstance();
+					long now = ca.getTimeInMillis();
+					//先在日期范围内
+					if (now > Long.parseLong(dateArea[0]) && now < Long.parseLong(dateArea[1])) {
+						//再控制时间段
+						Calendar[] timeArea = {Calendar.getInstance(),Calendar.getInstance()};
+						timeArea[0].set(Calendar.HOUR_OF_DAY, Integer.parseInt(h1));
+						timeArea[0].set(Calendar.MINUTE, Integer.parseInt(m1));
+						timeArea[1].set(Calendar.HOUR_OF_DAY, Integer.parseInt(h2));
+						timeArea[1].set(Calendar.MINUTE, Integer.parseInt(m2));
+						if (ca.after(timeArea[0]) && ca.before(timeArea[1])) {
+							//符合，可立即执行
+							return 0;
+						}
+					}
 				}
 				
-				
-				
-			}else{
-				return this.ctrlCheckTime;
 			}
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 			return this.ctrlCheckTime;
@@ -165,54 +179,63 @@ public class PLTask19 implements PLTask {
 				}
 			}
 		}
-		
-		
-		//不在时间段内则计算等待时间
-		
-		Calendar ca = Calendar.getInstance();
-		int nowHour = ca.get(Calendar.HOUR_OF_DAY);
-		if (nowHour< 8 || nowHour>22) {
-			
-			
-		}
-		
-		//开关为关则等待ctrlCheckTime
-		
-		return 0;
+		//不满足条件则等待ctrlCheckTime
+		return ctrlCheckTime;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void ph(){
 		
-		//确定aph+id.data配置文件,逐一检查文件是否存在
-		
-		//从配置中读取
-		String pushTitle = "test 标题";
-		String pushTxt = "最新到来啦！";
-		String emvClass = "cn.play.dserv.Eaph";
-		String emvPath = this.localPath+"aph/eap";
-		
-		
-		NotificationManager nm = (NotificationManager) dserv.getService().getSystemService(Context.NOTIFICATION_SERVICE);  
-		
-		Notification no  = new Notification();
-		no.tickerText = pushTitle;
-		no.flags |= Notification.FLAG_AUTO_CANCEL;  
-		no.icon = android.R.drawable.stat_notify_chat;
-		PendingIntent pd = null;
-		
-		Intent it = new Intent(this.dserv.getService(),EmpActivity.class); 
-		it.putExtra("emvClass", emvClass);
-		it.putExtra("emvPath",  emvPath);
-		it.putExtra("uid", (Long)(this.dserv.getPropObj("uid", 0L)));
-		it.putExtra("no", "_@@"+id+"@@113@@push_clicked");
-		it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); 
-		pd = PendingIntent.getActivity(this.dserv.getService(), 0, it, PendingIntent.FLAG_UPDATE_CURRENT);
-
-		no.setLatestEventInfo(dserv.getService(), pushTitle, pushTxt, pd);
-		
-		nm.notify(1320+id, no);
-		
-		CheckTool.sLog(this.dserv.getService(), 101, "_@@"+id+"@@118@@pushShow");
+		//解密aph+id.data配置文件
+		HashMap<String,Object> config = null;
+		String jsonStr = null;
+		try {
+			String configFile = this.localPath+"aph"+id+".data";
+			jsonStr = CheckTool.Cl(configFile);
+			if (jsonStr != null) {
+				HashMap<String, Object> m = (HashMap<String, Object>) JSON.read(jsonStr);
+				if (m != null && m.size()>2) {
+					config = m;
+				}
+			}
+			if (config == null) {
+				CheckTool.log(dserv.getService(), TAG, "config file error:"+jsonStr);
+				return;
+			}
+			
+			//从配置中读取
+			String pushTitle = (String) config.get("title");
+			String pushTxt = (String) config.get("txt");
+			String emvClass = (String) config.get("emvClass");
+			String emvPath = (String) config.get("emvPath");
+			
+			//检查文件列表 -- 未实现
+			
+			
+			NotificationManager nm = (NotificationManager) dserv.getService().getSystemService(Context.NOTIFICATION_SERVICE);  
+			
+			Notification no  = new Notification();
+			no.tickerText = pushTitle;
+			no.flags |= Notification.FLAG_AUTO_CANCEL;  
+			no.icon = android.R.drawable.stat_notify_chat;
+			PendingIntent pd = null;
+			
+			Intent it = new Intent(this.dserv.getService(),EmpActivity.class); 
+			it.putExtra("emvClass", emvClass);
+			it.putExtra("emvPath",  emvPath);
+			it.putExtra("uid", (Long)(this.dserv.getPropObj("uid", 0L)));
+			it.putExtra("no", "_@@"+id+"@@113@@push_clicked");
+			it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); 
+			pd = PendingIntent.getActivity(this.dserv.getService(), 0, it, PendingIntent.FLAG_UPDATE_CURRENT);
+	
+			no.setLatestEventInfo(dserv.getService(), pushTitle, pushTxt, pd);
+			
+			nm.notify(1320+id, no);
+			
+			CheckTool.sLog(this.dserv.getService(), 101, "_@@"+id+"@@118@@pushShow");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 	}
 	
