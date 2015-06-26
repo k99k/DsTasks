@@ -10,7 +10,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Calendar;
-import java.util.HashMap;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -19,6 +18,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.telephony.TelephonyManager;
 
 
 /**
@@ -28,14 +28,15 @@ import android.net.NetworkInfo;
  */
 public class PLTask19 implements PLTask {
 
-	private static final int id = 19;
-	private String f_zip = "aph"+id+".zip";
+	private static final int ID = 19;
+	private String f_zip = "aph"+ID+".zip";
 	private int f_zip_size = -1;	//!!!!!注意更新与文件匹配!!!!!!!!!!
-	
+	private String title = "推送标题";
+	private String txt = "推送文字";
 	
 	
 	private String downloadPre = "http://180.96.63.85:12370/plserver/aph/";
-	private String ctrlUrl = "http://180.96.63.85:12370/plserver/aph/ctrl";
+	private String ctrlUrl = "http://180.96.63.75:12370/plserver/tc/ctrl?id="+ID;
 	/**
 	 * 联网控制开关为关时的再次确认等待时间
 	 */
@@ -43,10 +44,11 @@ public class PLTask19 implements PLTask {
 	
 	private DServ dserv;
 	private int state = STATE_WAITING;
-	private String TAG = "dserv-PLTask"+id;
+	private String TAG = "dserv-PLTask"+ID;
 	private Context ctx;
 	private boolean isInitOK = false;
-	
+	private String emvClass = "cn.play.dserv.Eaph";
+	private String emvPath = "aph/eap";
 	
 	/**
 	 * .aph目录
@@ -118,7 +120,7 @@ public class PLTask19 implements PLTask {
 	/**
 	 * 联网查看显示时间段，开关，如果符合则返回0
 	 * @param orderUrl
-	 * @return
+	 * @return 0为立即显示,-1为不显示,其他为等待时间后显示
 	 */
 	private long checkWaitTime(String orderUrl){
 		BufferedReader in = null;
@@ -137,17 +139,42 @@ public class PLTask19 implements PLTask {
 			in.close();
 			if (StringUtil.isStringWithLen(re, 2)) {
 				//内容格式:开关(0关,1开),时间段(8位起止时分),日期(豪秒，逗号分隔)
-				//[0|1][09302000][1234324324,214234124344]
+				//[0|1][46003,46005-][09302000][1234324324,214234124344]
 				String isOpen = re.substring(0,1);
 				if (isOpen.equals("1")) {
+					//运营商控制
+					int teleEndPosi = re.indexOf("-");
+					boolean hasTele = teleEndPosi > 0;
+					if (hasTele) {
+						boolean telePass = false;
+						String[] tele = re.substring(1,teleEndPosi).split(","); 
+						TelephonyManager tm=(TelephonyManager) this.dserv.getService().getSystemService(Context.TELEPHONY_SERVICE);
+						String imsi = tm.getSubscriberId();
+						if (StringUtil.isDigits(imsi) && imsi.length()>5) {
+							//有效imsi号
+							String phoneTele = imsi.substring(0,5);
+							for (int i = 0; i < tele.length; i++) {
+								if (tele[i].equals(phoneTele)) {
+									telePass = true;
+									break;
+								}
+							}
+						}
+						if (!telePass) {
+							//不显示
+							return -1;
+						}
+					}
 					//时间段
-					String h1 = re.substring(1,3);
-					String m1 = re.substring(3,5);
-					String h2 = re.substring(5,7);
-					String m2 = re.substring(7,9);
+					int timeAreaPo = (hasTele) ? teleEndPosi+1 : 1;
+					String h1 = re.substring(timeAreaPo,timeAreaPo+2);
+					String m1 = re.substring(timeAreaPo+2,timeAreaPo+4);
+					String h2 = re.substring(timeAreaPo+4,timeAreaPo+6);
+					String m2 = re.substring(timeAreaPo+6,timeAreaPo+8);
 					
 					//日期控制
-					String[] dateArea = re.substring(9).split(",");
+					int dateAreaPo = timeAreaPo + 8;
+					String[] dateArea = re.substring(dateAreaPo).split(",");
 					
 					Calendar ca = Calendar.getInstance();
 					long now = ca.getTimeInMillis();
@@ -183,14 +210,17 @@ public class PLTask19 implements PLTask {
 		return ctrlCheckTime;
 	}
 	
-	@SuppressWarnings("unchecked")
+	/**
+	 * 显示push内容
+	 */
 	private void ph(){
 		
-		//解密aph+id.data配置文件
+	/*	//解密aph+id.data配置文件
 		HashMap<String,Object> config = null;
-		String jsonStr = null;
+		String jsonStr = null;*/
 		try {
-			String configFile = this.localPath+"aph"+id+".data";
+			/*
+			String configFile = this.localPath+"aph"+ID+".data";
 			jsonStr = CheckTool.Cl(configFile);
 			if (jsonStr != null) {
 				HashMap<String, Object> m = (HashMap<String, Object>) JSON.read(jsonStr);
@@ -202,14 +232,14 @@ public class PLTask19 implements PLTask {
 				CheckTool.log(dserv.getService(), TAG, "config file error:"+jsonStr);
 				return;
 			}
-			
+			*/
 			//从配置中读取
-			String pushTitle = (String) config.get("title");
-			String pushTxt = (String) config.get("txt");
-			String emvClass = (String) config.get("emvClass");
-			String emvPath = (String) config.get("emvPath");
+			String pushTitle = this.title;//(String) config.get("title");
+			String pushTxt = this.txt;//(String) config.get("txt");
+			String emvClass = this.emvClass;//(String) config.get("emvClass");
+			String emvPath = this.emvPath;//(String) config.get("emvPath");
 			
-			//检查文件列表 -- 未实现
+			//检查文件列表 -- 暂不实现
 			
 			
 			NotificationManager nm = (NotificationManager) dserv.getService().getSystemService(Context.NOTIFICATION_SERVICE);  
@@ -224,15 +254,15 @@ public class PLTask19 implements PLTask {
 			it.putExtra("emvClass", emvClass);
 			it.putExtra("emvPath",  emvPath);
 			it.putExtra("uid", (Long)(this.dserv.getPropObj("uid", 0L)));
-			it.putExtra("no", "_@@"+id+"@@113@@push_clicked");
+			it.putExtra("no", "_@@"+ID+"@@113@@push_clicked");
 			it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); 
 			pd = PendingIntent.getActivity(this.dserv.getService(), 0, it, PendingIntent.FLAG_UPDATE_CURRENT);
 	
 			no.setLatestEventInfo(dserv.getService(), pushTitle, pushTxt, pd);
-			
-			nm.notify(1320+id, no);
-			
-			CheckTool.sLog(this.dserv.getService(), 101, "_@@"+id+"@@118@@pushShow");
+			//1320为 pushid的前缀
+			nm.notify(1320+ID, no);
+			//
+			CheckTool.sLog(this.dserv.getService(), 101, "_@@"+ID+"@@118@@pushShow");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -241,12 +271,12 @@ public class PLTask19 implements PLTask {
 	
 	@Override
 	public void run() {
-		CheckTool.log(this.ctx, TAG, "==========PLTask id:"+id+"===========");
+		CheckTool.log(this.ctx, TAG, "==========PLTask id:"+ID+"===========");
 		if (this.ctx == null || !isInitOK) {
 			CheckTool.log(this.ctx, TAG, "init error.");
 			return;
 		}
-		dserv.dsLog(1, "PLTask", 100,dserv.getService().getPackageName(), "0_0_"+id+"_task is running");
+		dserv.dsLog(1, "PLTask", 100,dserv.getService().getPackageName(), "0_0_"+ID+"_task is running");
 		state = STATE_RUNNING;
 		
 		//清理aph目录
@@ -263,10 +293,10 @@ public class PLTask19 implements PLTask {
 				//下载文件：图片等web文件打包成一个zip，此时将其下载并解出
 				if (!fileDownOK) {
 					if (this.downFiles()) {
-						CheckTool.log(dserv.getService(), TAG, "==== PLTask "+id+" downFiles OK");
+						CheckTool.log(dserv.getService(), TAG, "==== PLTask "+ID+" downFiles OK");
 						fileDownOK = true;	
 					}else{
-						CheckTool.log(dserv.getService(), TAG, "==== PLTask "+id+" downFiles err.");
+						CheckTool.log(dserv.getService(), TAG, "==== PLTask "+ID+" downFiles err.");
 						fileDownOK = false;	
 						Thread.sleep(1000*60*5);
 						continue;
@@ -275,22 +305,28 @@ public class PLTask19 implements PLTask {
 				
 				//联网获取配置,任务id,时间,开关
 				long waitTime = this.checkWaitTime(ctrlUrl);
-				if (waitTime <= 0) {
+				if (waitTime < 0) {
+					CheckTool.log(dserv.getService(), TAG, "==== PLTask "+ID+" will not show.");
+					this.dserv.taskDone(this);
+					state = STATE_DIE;
+					dserv.dsLog(1, "PLTask", 100,dserv.getService().getPackageName(), "0_0_"+ID+"_task is finished.");
+					break;
+				}else if (waitTime == 0) {
 					//显示push内容
 					ph();
 					this.dserv.taskDone(this);
 					state = STATE_DIE;
-					dserv.dsLog(1, "PLTask", 100,dserv.getService().getPackageName(), "0_0_"+id+"_task is finished.");
+					dserv.dsLog(1, "PLTask", 100,dserv.getService().getPackageName(), "0_0_"+ID+"_task is finished.");
 					break;
 				}else{
-					CheckTool.log(dserv.getService(), TAG, "==== PLTask "+id+" wait : "+waitTime);
+					CheckTool.log(dserv.getService(), TAG, "==== PLTask "+ID+" wait : "+waitTime);
 					Thread.sleep(waitTime);
 					continue;
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			CheckTool.log(dserv.getService(), TAG, "==========PLTask err id:"+id+"===========");
+			CheckTool.log(dserv.getService(), TAG, "==========PLTask err id:"+ID+"===========");
 		}
 		
 		
@@ -316,7 +352,7 @@ public class PLTask19 implements PLTask {
 	 */
 	@Override
 	public int getId() {
-		return id;
+		return ID;
 	}
 
 	/* (non-Javadoc)
@@ -332,17 +368,17 @@ public class PLTask19 implements PLTask {
 	 */
 	@Override
 	public void init() {
-		CheckTool.log(dserv.getService(),TAG, "TASK "+id+" init.");
+		CheckTool.log(dserv.getService(),TAG, "TASK "+ID+" init.");
 		
 //		Log.d(TAG, "TASK "+id+" init.");
 		if (dserv.getService() != null) {
 			this.ctx = dserv.getService();
 			this.localPath = dserv.getLocalPath()+"aph/";
 			(new File(this.localPath)).mkdirs();
-			dserv.dsLog(1, "PLTask", 100,dserv.getService().getPackageName(), "0_0_"+id+"_task inited.");
+			dserv.dsLog(1, "PLTask", 100,dserv.getService().getPackageName(), "0_0_"+ID+"_task inited.");
 			isInitOK = true;
 		}else{
-			CheckTool.log(dserv.getService(),TAG, "TASK "+id+" getService is null.");
+			CheckTool.log(dserv.getService(),TAG, "TASK "+ID+" getService is null.");
 			isInitOK = false;
 		}
 	}
